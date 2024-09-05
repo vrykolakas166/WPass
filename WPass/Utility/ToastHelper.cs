@@ -1,6 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
-using System.Windows;
-using Windows.UI.Notifications;
 
 namespace WPass.Utility
 {

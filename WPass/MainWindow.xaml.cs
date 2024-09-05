@@ -18,6 +18,11 @@ namespace WPass
         {
             InitializeComponent();
             vm = Resources["mainVm"] as MainVM;
+
+            if (true)
+            {
+                new TutorialWindow().ShowDialog();
+            }
         }
 
         #region Events

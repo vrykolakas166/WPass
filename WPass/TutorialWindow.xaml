@@ -1,0 +1,155 @@
+﻿<Window x:Class="WPass.TutorialWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPass"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        mc:Ignorable="d"
+        x:Name="TWindow" 
+        Title="Guide" 
+        Height="400" Width="400"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Border Margin="20" 
+            CornerRadius="20" 
+            Background="White">
+        <Border.Effect>
+            <DropShadowEffect Color="Black"
+                      BlurRadius="20"
+                      ShadowDepth="5"
+                      Opacity="0.5" />
+        </Border.Effect>
+        <Grid>
+            <Button x:Name="ButtonClose"
+                    Panel.ZIndex="3"
+                    Click="ButtonClose_Click"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Foreground="DeepSkyBlue"
+                    Style="{StaticResource EmptyButton}">
+                SKIP TUTORIAL
+            </Button>
+            <Button x:Name="ButtonNext"
+                    Panel.ZIndex="3"
+                    Click="ButtonNext_Click"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Foreground="DeepSkyBlue"
+                    Style="{StaticResource EmptyButton}">
+                <TextBlock TextDecorations="Underline">Next</TextBlock>
+            </Button>
+            <DockPanel Margin="8">
+                <StackPanel DockPanel.Dock="Bottom"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+                    <!-- Circle -->
+                    <Ellipse x:Name="Dot0" Fill="SkyBlue" Stroke="LightSkyBlue" Tag="0"/>
+                    <Ellipse x:Name="Dot1" Fill="Transparent" Stroke="LightSkyBlue" Tag="1"/>
+                    <Ellipse x:Name="Dot2" Fill="Transparent" Stroke="LightSkyBlue" Tag="2"/>
+                    <Ellipse x:Name="Dot3" Fill="Transparent" Stroke="LightSkyBlue" Tag="3"/>
+                    <StackPanel.Resources>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Width" Value="16" />
+                            <Setter Property="Height" Value="16" />
+                            <Setter Property="StrokeThickness" Value="1" />
+                            <Setter Property="Margin" Value="3 2" />
+                            <EventSetter Event="MouseLeftButtonDown" Handler="EllipseStep_Click" />
+                        </Style>
+                    </StackPanel.Resources>
+                </StackPanel>
+                <ScrollViewer x:Name="GuideScrollViewer" 
+                              HorizontalScrollBarVisibility="Hidden"
+                              VerticalScrollBarVisibility="Disabled"
+                              Focusable="False">
+                    <StackPanel Orientation="Horizontal">
+                        <Grid x:Name="view0">
+                            <StackPanel>
+                                <TextBlock FontSize="20"
+                                           FontWeight="SemiBold">
+                                    Before you start
+                                </TextBlock>
+                                <TextBlock FontSize="14">
+                                    Check out some guides
+                                </TextBlock>
+                                <TextBlock TextWrapping="Wrap"
+                                           FontStyle="Italic"
+                                           Foreground="Gray">
+                                    or you can SKIP this tutorial by click "SKIP" on the top right of this window
+                                </TextBlock>
+                                <Image Margin="00 20"
+                                       gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/welcome.gif">
+                                </Image>
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="view1">
+                            <StackPanel>
+                                <TextBlock FontSize="20"
+                                           FontWeight="SemiBold">
+                                    Adding credentials
+                                </TextBlock>
+                                <TextBlock FontSize="14">
+                                    Manual
+                                </TextBlock>
+                                <Image gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/manual_add.gif">
+                                </Image>
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="view2">
+                            <StackPanel>
+                                <TextBlock FontSize="20"
+                                           FontWeight="SemiBold">
+                                    Adding credentials
+                                </TextBlock>
+                                <TextBlock FontSize="14">
+                                    Import from csv
+                                </TextBlock>
+                                <Image gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/import.gif">
+                                </Image>
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="view3">
+                            <StackPanel>
+                                <TextBlock FontSize="20"
+                                           FontWeight="SemiBold">
+                                    Using hotkeys
+                                </TextBlock>
+                                <TextBlock FontSize="14">
+                                    Fill data
+                                </TextBlock>
+                                <TextBlock>
+                                    + Open website on browser
+                                </TextBlock>
+                                <TextBlock>
+                                    + You can press Ctrl + ` to fill username, password
+                                </TextBlock>
+                                <TextBlock>
+                                    + Or change hotkeys in Setting
+                                </TextBlock>
+                                <TextBlock FontSize="14">
+                                    Clear data
+                                </TextBlock>
+                                <TextBlock>
+                                    + You can press Ctrl + Q to clear credential fields on current website
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel.Resources>
+                            <Style TargetType="Grid">
+                                <Setter Property="Width" Value="300" />
+                                <Setter Property="Height" Value="300" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="Margin" Value="20 10" />
+                            </Style>
+                        </StackPanel.Resources>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </Grid>
+    </Border>
+</Window>

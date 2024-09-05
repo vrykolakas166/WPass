@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ApplicationIcon>Resources\myapp.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="Resources\add.png" />
+		<None Remove="Resources\app.ico" />
+		<None Remove="Resources\close.png" />
+		<None Remove="Resources\filter.png" />
+		<None Remove="Resources\manage.png" />
+		<None Remove="Resources\myapp.ico" />
+		<None Remove="Resources\open.png" />
+		<None Remove="Resources\remove.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Resources\filter.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Resources\manage.png">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	  <Resource Include="Resources\myapp.ico">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Resource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+		<PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+		<PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\WPass.Core\WPass.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Resource Include="Resources\add.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\close.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\open.png">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+		<Resource Include="Resources\remove.png">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
+
+</Project>

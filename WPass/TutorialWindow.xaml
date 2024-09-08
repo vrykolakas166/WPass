@@ -13,7 +13,8 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
-        Background="Transparent">
+        Background="Transparent"
+        Loaded="TWindow_Loaded">
     <Border Margin="20" 
             CornerRadius="20" 
             Background="White">
@@ -81,9 +82,8 @@
                                            Foreground="Gray">
                                     or you can SKIP this tutorial by click "SKIP" on the top right of this window
                                 </TextBlock>
-                                <Image Margin="00 20"
-                                       gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/welcome.gif">
-                                </Image>
+                                <Image x:Name="WelcomeGif" 
+                                       Margin="0 20" />
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view1">
@@ -95,8 +95,7 @@
                                 <TextBlock FontSize="14">
                                     Manual
                                 </TextBlock>
-                                <Image gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/manual_add.gif">
-                                </Image>
+                                <Image x:Name="AddGif" />
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view2">
@@ -108,8 +107,7 @@
                                 <TextBlock FontSize="14">
                                     Import from csv
                                 </TextBlock>
-                                <Image gif:ImageBehavior.AnimatedSource="/Resources/Tutorial/import.gif">
-                                </Image>
+                                <Image x:Name="ImportGif" />
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view3">

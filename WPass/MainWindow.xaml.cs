@@ -19,7 +19,7 @@ namespace WPass
             InitializeComponent();
             vm = Resources["mainVm"] as MainVM;
 
-            if (true)
+            if (App.FirstUsed)
             {
                 new TutorialWindow().ShowDialog();
             }

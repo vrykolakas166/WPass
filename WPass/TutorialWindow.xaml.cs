@@ -2,7 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WpfAnimatedGif;
 
 namespace WPass
 {
@@ -16,10 +18,11 @@ namespace WPass
         private static DateTime _lastExecutedTimes = DateTime.MinValue; // Store the last execution time for debouncing
         private static readonly TimeSpan _debounceInterval = TimeSpan.FromSeconds(ANIMATED_TIME); // Debounce interval
 
+        private static int _totalGIf;
+
         public TutorialWindow()
         {
             InitializeComponent();
-
             _currentDot = Dot0;
         }
 
@@ -63,7 +66,7 @@ namespace WPass
                     {
                         ButtonNext.Content = "Next";
                     }
-                    else if(rs == 3)
+                    else if (rs == 3)
                     {
                         ButtonNext.Content = "Finish";
                     }
@@ -132,6 +135,33 @@ namespace WPass
                     case 3:
                         GoToView(Dot3);
                         break;
+                }
+            }
+        }
+
+        private void TWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            _totalGIf = 3;
+            LoadGif(WelcomeGif, "/Resources/Tutorial/welcome.gif");
+            LoadGif(AddGif, "/Resources/Tutorial/manual_add.gif");
+            LoadGif(ImportGif, "/Resources/Tutorial/import.gif");
+        }
+
+        private void LoadGif(Image imageControl, string path)
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri($"pack://application:,,,{path}");
+            image.EndInit();
+
+            ImageBehavior.SetAnimatedSource(imageControl, image);
+
+            if (ImageBehavior.GetIsAnimationLoaded(imageControl))
+            {
+                _totalGIf -= 1;
+                if (_totalGIf == 0)
+                {
+                    // loaded
                 }
             }
         }

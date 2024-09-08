@@ -125,8 +125,6 @@ namespace WPass.ViewModels
 
             FileImportCommand = new BaseCommand<object>(c => true, async c => await ImportFile());
             OpenSettingCommand = new BaseCommand<object>(c => true, c => OpenSetting());
-            // Initialize default data
-            SeedData();
 
             LoadData().Wait();
         }
@@ -435,57 +433,6 @@ namespace WPass.ViewModels
                     await LoadData();
                 }
             }
-        }
-
-        private static void SeedData()
-        {
-            var context = new WPContext();
-            var browserElement1 = new BrowserElement() { Name = BElement.DEFAULT_0 };
-            var browserElement2 = new BrowserElement() { Name = BElement.DEFAULT_1 };
-            var browserElement3 = new BrowserElement() { Name = BElement.DEFAULT_2 };
-
-            var check1 = context.BrowserElements.Find(browserElement1.Name);
-            var check2 = context.BrowserElements.Find(browserElement2.Name);
-            var check3 = context.BrowserElements.Find(browserElement3.Name);
-
-            if (check1 == null)
-            {
-                context.BrowserElements.Add(browserElement1);
-            }
-            if (check2 == null)
-            {
-                context.BrowserElements.Add(browserElement2);
-            }
-            if (check3 == null)
-            {
-                context.BrowserElements.Add(browserElement3);
-            }
-
-            if (!context.Settings.Any())
-            {
-                context.Settings.Add(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.HOTKEY_FILL_DATA,
-                    Value = "Ctrl + `"
-                });
-                context.Settings.Add(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.HOTKEY_CLEAR_DATA,
-                    Value = "Ctrl + Q"
-                });
-                context.Settings.Add(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.HIDE_ON_CLOSE,
-                    Value = "false"
-                });
-                context.Settings.Add(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.WINDOW_STARTUP,
-                    Value = "false"
-                });
-            }
-
-            context.SaveChanges();
         }
     }
 }

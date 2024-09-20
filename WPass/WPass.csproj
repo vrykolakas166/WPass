@@ -9,6 +9,8 @@
 		<UseWPF>true</UseWPF>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ApplicationIcon>Resources\myapp.ico</ApplicationIcon>
+		<PlatformTarget>x64</PlatformTarget>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,6 +25,12 @@
 		<None Remove="Resources\Tutorial\import.gif" />
 		<None Remove="Resources\Tutorial\manual_add.gif" />
 		<None Remove="Resources\Tutorial\welcome.gif" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Data\main.db">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>

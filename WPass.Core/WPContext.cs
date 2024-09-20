@@ -17,8 +17,23 @@ namespace WPass.Core
             {
                 Directory.CreateDirectory(directory);
             }
-
+            
             var dbPath = Path.Combine(directory, "main.db");
+
+            // If main.db doesn't exist, copy template.db to ApplicationData folder
+            if (!File.Exists(dbPath))
+            {
+                var templateDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "main.db");
+                if (File.Exists(templateDbPath))
+                {
+                    File.Copy(templateDbPath, dbPath);
+                }
+                else
+                {
+                    // Handle scenario where template.db is missing (e.g., log error, show message)
+                }
+            }
+
             optionsBuilder.UseSqlite($"Data Source={dbPath};");
         }
 

@@ -15,6 +15,15 @@ namespace WPass
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                Exception ex = (Exception)args.ExceptionObject;
+                var error = $"Unhandled exception: {ex.Message}\n{ex.StackTrace}";
+                var log = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log", "error.txt");
+                if (!System.IO.File.Exists(log)) System.IO.File.Create(log).Close();
+                System.IO.File.WriteAllText(log, error);
+            };
+
             CheckBeforeStart();
 
             // Create default data

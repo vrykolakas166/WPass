@@ -1,23 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Automation;
-using WPass.Core;
 using WPass.Core.Model;
 
 namespace WPass.Utility
 {
     public static class CredentialManager
     {
-        public static void FillData(bool isClear = false)
+        /// <summary>
+        /// Set data on fields
+        /// </summary>
+        /// <param name="isClear">false mean set, true mean clear</param>
+        public static void SetData(bool isClear = false)
         {
             try
             {
-                WPContext? context = null;
                 var currentUrl = string.Empty;
-                if (!isClear)
-                {
-                    context = new WPContext();
-                }
 
                 bool usernameIsSet = false;
                 bool passwordIsSet = false;
@@ -136,9 +133,7 @@ namespace WPass.Utility
 
         public static bool SetUsername(AutomationElement element, string currentUrl, bool isClear = false)
         {
-            WPContext context = new();
-            var loginFields = context.BrowserElements.Select(b => b.Name).ToList();
-            if (loginFields.Any(field => field.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
+            if (GlobalSession.BrowserElements.Any(field => field.Name.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
             {
                 // Check if the element supports ValuePattern
                 if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
@@ -147,19 +142,18 @@ namespace WPass.Utility
                     if (!isClear)
                     {
                         // get from db
-                        var entries = context.Entries.Include(e => e.Websites).ToList();
-                        if (entries.Count > 0)
+                        if (GlobalSession.EntryDtos.Count > 0)
                         {
-                            foreach (var entry in entries)
+                            foreach (var entry in GlobalSession.EntryDtos)
                             {
-                                if (IsSameWebsite(entry.Websites, currentUrl))
+                                if (IsSameWebsite([.. entry.Websites], currentUrl))
                                 {
                                     valuePattern.SetValue(entry.Username);
                                     return true;
                                 }
                             }
 
-                            valuePattern.SetValue(entries[0].Username);
+                            valuePattern.SetValue(GlobalSession.DefaultEntry?.Username ?? "");
                             return true;
                         }
                         return false;
@@ -182,7 +176,6 @@ namespace WPass.Utility
 
         public static bool SetPassword(AutomationElement element, string currentUrl, bool isClear = false)
         {
-            WPContext context = new();
             if (element.Current.Name.ToLower().Equals("password") && element.Current.ControlType.Equals(ControlType.Edit))
             {
                 // Check if the element supports ValuePattern
@@ -192,19 +185,18 @@ namespace WPass.Utility
                     if (!isClear)
                     {
                         // get from db
-                        var entries = context.Entries.Include(e => e.Websites).ToList();
-                        if (entries.Count > 0)
+                        if (GlobalSession.EntryDtos.Count > 0)
                         {
-                            foreach (var entry in entries)
+                            foreach (var entry in GlobalSession.EntryDtos)
                             {
-                                if (IsSameWebsite(entry.Websites, currentUrl))
+                                if (IsSameWebsite([.. entry.Websites], currentUrl))
                                 {
-                                    valuePattern.SetValue(Security.Decrypt(entry.EncryptedPassword));
+                                    valuePattern.SetValue(entry.Password);
                                     return true;
                                 }
                             }
 
-                            valuePattern.SetValue(Security.Decrypt(entries[0].EncryptedPassword));
+                            valuePattern.SetValue(GlobalSession.DefaultEntry?.Password ?? "");
                             return true;
                         }
                         return false;

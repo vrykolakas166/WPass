@@ -28,13 +28,9 @@ namespace WPass.Core
                 {
                     File.Copy(templateDbPath, dbPath);
                 }
-                else
-                {
-                    // Handle scenario where template.db is missing (e.g., log error, show message)
-                }
             }
 
-            optionsBuilder.UseSqlite($"Data Source={dbPath};");
+            optionsBuilder.UseSqlite($"Data Source={dbPath};Cache=Shared;Pooling=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

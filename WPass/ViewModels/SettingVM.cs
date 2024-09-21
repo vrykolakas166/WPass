@@ -172,6 +172,7 @@ namespace WPass.ViewModels
             WPContext context = new();
 
             var browserElements = context.BrowserElements.ToList();
+            GlobalSession.BrowserElements = browserElements; // saved to session
             var settings = context.Settings
                 .OrderBy(setting => setting.Key)
                 .ToList();

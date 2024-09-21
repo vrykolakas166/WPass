@@ -39,6 +39,9 @@ namespace WPass.Core.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");

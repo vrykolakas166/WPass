@@ -11,8 +11,8 @@ using WPass.Core;
 namespace WPass.Core.Migrations
 {
     [DbContext(typeof(WPContext))]
-    [Migration("20240902161816_FirstInit")]
-    partial class FirstInit
+    [Migration("20240921184430_OneShot")]
+    partial class OneShot
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,9 @@ namespace WPass.Core.Migrations
                     b.Property<string>("EncryptedPassword")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Username")
                         .IsRequired()

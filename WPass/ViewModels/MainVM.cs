@@ -6,7 +6,6 @@ using System.Windows.Input;
 using ViewModels.Base;
 using WPass.Constant;
 using WPass.Core;
-using WPass.Core.Model;
 using WPass.DTO;
 using WPass.Utility;
 
@@ -15,7 +14,6 @@ namespace WPass.ViewModels
     public class MainVM : BaseViewModel
     {
         private static Window? _mainWindow;
-        private static List<EntryDto> _originList = [];
         private static List<Tuple<string, string>> _stringSumList = [];
 
         public static int HOTKEY_FILL_DATA { get; set; }
@@ -90,6 +88,7 @@ namespace WPass.ViewModels
         public ICommand AddOrUpdateEntryCommand { get; set; }
         public ICommand RemoveEntryCommand { get; set; }
         public ICommand ManageCommand { get; set; }
+        public ICommand SetDefaultEntryCommand { get; set; }
 
         public ICommand FilterSearchCommand { get; set; }
 
@@ -102,6 +101,8 @@ namespace WPass.ViewModels
 
         public MainVM()
         {
+            GlobalSession.EntryDtos = [];
+
             _filteredSearchValue = string.Empty;
             _selectedSortMode = SortMode.DEFAULT;
             _sortModes =
@@ -116,6 +117,7 @@ namespace WPass.ViewModels
             AddOrUpdateEntryCommand = new BaseCommand<string>(c => true, AddOrUpdateEntry);
             RemoveEntryCommand = new BaseCommand<string>(c => true, RemoveEntry);
             ManageCommand = new BaseCommand<Button>(c => true, Manage);
+            SetDefaultEntryCommand = new BaseCommand<string>(CanSetDefault, SetDefaultEntry);
 
             FilterSearchCommand = new BaseCommand<object>(c => true, c => FilterSearch());
 
@@ -129,12 +131,38 @@ namespace WPass.ViewModels
             LoadData().Wait();
         }
 
+        private bool CanSetDefault(string id)
+        {
+            return id != GlobalSession.DefaultEntry?.Id;
+        }
+
+        private async Task SetDefaultEntry(string id)
+        {
+            using var context = new WPContext();
+            var newEntry = await context.Entries.FindAsync(id);
+            var oldEntry = await context.Entries.FindAsync(GlobalSession.DefaultEntry?.Id);
+            if (newEntry != null)
+            {
+                newEntry.IsDefault = true;
+                context.Entries.Update(newEntry);
+
+                if(oldEntry != null)
+                {
+                    oldEntry.IsDefault = false;
+                    context.Entries.Update(oldEntry);
+                }
+
+                await context.SaveChangesAsync();
+                await LoadData();
+            }
+        }
+
         private void FilterSearch()
         {
             Entries.Clear();
             if (string.IsNullOrEmpty(FilteredSearchValue))
             {
-                foreach (var entry in _originList)
+                foreach (var entry in GlobalSession.EntryDtos)
                 {
                     Entries.Add(entry);
                 }
@@ -145,7 +173,7 @@ namespace WPass.ViewModels
                 {
                     if (!Entries.Any(e => e.Id.Equals(tup.Item1)))
                     {
-                        Entries.Add(_originList.First(e => e.Id.Equals(tup.Item1)));
+                        Entries.Add(GlobalSession.EntryDtos.First(e => e.Id.Equals(tup.Item1)));
                     }
                 }
             }
@@ -283,7 +311,9 @@ namespace WPass.ViewModels
                             }
                         }
                     }
+
                     var rs = await context.SaveChangesAsync();
+                    
                     if (rs > 0) await LoadData();
                 }
             }
@@ -341,22 +371,22 @@ namespace WPass.ViewModels
                             var tempArr = setting.Value.Split(" + ");
                             if (tempArr.Length == 2)
                             {
-                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Oem3, () => CredentialManager.FillData());
+                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Oem3, () => CredentialManager.SetData());
                             }
                             else if (tempArr.Length == 3)
                             {
-                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Oem3, () => CredentialManager.FillData());
+                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Oem3, () => CredentialManager.SetData());
                             }
                             break;
                         case Constant.Setting.HOTKEY_CLEAR_DATA: // clear
                             tempArr = setting.Value.Split(" + ");
                             if (tempArr.Length == 2)
                             {
-                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Q, () => CredentialManager.FillData(true));
+                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Q, () => CredentialManager.SetData(true));
                             }
                             else if (tempArr.Length == 3)
                             {
-                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Q, () => CredentialManager.FillData(true));
+                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Q, () => CredentialManager.SetData(true));
                             }
                             break;
                         default:
@@ -374,23 +404,51 @@ namespace WPass.ViewModels
 
         public async Task LoadData()
         {
+            bool notFound = true;
             var context = new WPContext();
             Entries.Clear();
             var entries = await context.Entries
                 .Include(e => e.Websites)
                 .OrderByDescending(e => e.CreatedAt)
                 .ToListAsync();
+
             foreach (var entry in entries)
             {
-                Entries.Add(EntryDto.MapFrom(entry));
-                _originList.Add(EntryDto.MapFrom(entry));
+                var item = EntryDto.MapFrom(entry);
+                if (item.IsDefault)
+                {
+                    Entries.Insert(0, item);
+                    GlobalSession.EntryDtos.Insert(0, item);
+                    notFound = false;
+                }
+                else
+                {
+                    Entries.Add(item);
+                    GlobalSession.EntryDtos.Add(item);
+                }
+            }
+
+            // no item map default, mean it was deleted, remove default and try to add first item in last list
+            if (notFound)
+            {
+                var firstAdded = Entries.FirstOrDefault();
+                if (firstAdded != null)
+                {
+                    var item = await context.Entries.FirstAsync(e => e.Id.Equals(firstAdded.Id));
+                    item.IsDefault = true;
+                    context.Entries.Update(item);
+                    await context.SaveChangesAsync();
+                    Entries[0].IsDefault = true;
+                    GlobalSession.EntryDtos[0].IsDefault = true;
+                    GlobalSession.DefaultEntry = EntryDto.MapFrom(item);
+                }
             }
 
             TotalEntries = Entries.Count;
 
             // get summary string to for filter search function
             _stringSumList = [];
-            foreach (var item in _originList)
+            foreach (var item in GlobalSession.EntryDtos)
             {
                 _stringSumList.Add(new Tuple<string, string>(item.Id, item.Username));
                 if (item.Websites.Any())

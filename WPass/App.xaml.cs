@@ -15,16 +15,20 @@ namespace WPass
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+            // Check instance
+            CheckBeforeStart();
+
+            // Error handle logger
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 Exception ex = (Exception)args.ExceptionObject;
                 var error = $"Unhandled exception: {ex.Message}\n{ex.StackTrace}";
-                var log = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log", "error.txt");
-                if (!System.IO.File.Exists(log)) System.IO.File.Create(log).Close();
-                System.IO.File.WriteAllText(log, error);
+                var logFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
+                var logFile = System.IO.Path.Combine(logFolder, "error.txt");
+                if (!System.IO.Directory.Exists(logFolder)) System.IO.Directory.CreateDirectory(logFolder);
+                if (!System.IO.File.Exists(logFile)) System.IO.File.Create(logFile).Close();
+                System.IO.File.WriteAllText(logFile, error);
             };
-
-            CheckBeforeStart();
 
             // Create default data
             await SeedData();
@@ -56,6 +60,7 @@ namespace WPass
         private static async Task SeedData()
         {
             var context = new WPContext();
+            GlobalSession.BrowserElements = []; // new session
             var browserElement1 = new BrowserElement() { Name = BElement.DEFAULT_0 };
             var browserElement2 = new BrowserElement() { Name = BElement.DEFAULT_1 };
             var browserElement3 = new BrowserElement() { Name = BElement.DEFAULT_2 };
@@ -103,6 +108,8 @@ namespace WPass
             }
 
             await context.SaveChangesAsync();
+
+            GlobalSession.BrowserElements.AddRange(context.BrowserElements); // saved session data 
         }
     }
 }

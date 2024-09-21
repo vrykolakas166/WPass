@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WPass.Core.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstInit : Migration
+    public partial class OneShot : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,6 +29,7 @@ namespace WPass.Core.Migrations
                     Id = table.Column<string>(type: "TEXT", nullable: false),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     EncryptedPassword = table.Column<string>(type: "TEXT", nullable: false),
+                    IsDefault = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

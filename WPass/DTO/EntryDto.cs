@@ -17,6 +17,7 @@ namespace WPass.DTO
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Username { get; set; }
         public string Password { get; set; }
+        public bool IsDefault { get; set; }
         public ObservableCollection<Website> Websites { get; set; }
 
         public void UpdateFrom(Entry entry)
@@ -25,6 +26,7 @@ namespace WPass.DTO
             Username = entry.Username;
             Password = Security.Decrypt(entry.EncryptedPassword);
             Websites = [.. entry.Websites];
+            IsDefault = entry.IsDefault;
         }
 
         public static EntryDto MapFrom(Entry entry) => new()
@@ -33,6 +35,7 @@ namespace WPass.DTO
             Username = entry.Username,
             Password = Security.Decrypt(entry.EncryptedPassword),
             Websites = [.. entry.Websites],
+            IsDefault = entry.IsDefault
         };
 
         // Detect changed properties section

@@ -62,7 +62,7 @@ namespace WPass
                 }
 
                 // back to default
-                MainVM.HOTKEY_FILL_DATA = KeyListenner.Register(Owner, ModifierKeys.Control, Key.Oem3, () => CredentialManager.FillData());
+                MainVM.HOTKEY_FILL_DATA = KeyListenner.Register(Owner, ModifierKeys.Control, Key.Oem3, () => CredentialManager.SetData());
             }
         }
 
@@ -109,7 +109,7 @@ namespace WPass
                     }
                 }
                 // back to default
-                MainVM.HOTKEY_CLEAR_DATA = KeyListenner.Register(Owner, ModifierKeys.Control, Key.Q, () => CredentialManager.FillData(true)); // clear
+                MainVM.HOTKEY_CLEAR_DATA = KeyListenner.Register(Owner, ModifierKeys.Control, Key.Q, () => CredentialManager.SetData(true)); // clear
             }
         }
     }

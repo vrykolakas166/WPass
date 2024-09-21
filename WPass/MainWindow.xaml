@@ -194,6 +194,13 @@
                                     BorderBrush="Black"
                                     CornerRadius="1">
                                 <StackPanel>
+                                    <StackPanel.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Set as defaut entry" 
+                                                      Command="{Binding SetDefaultEntryCommand, Source={StaticResource mainVm}}"
+                                                      CommandParameter="{Binding Id}"/>
+                                        </ContextMenu>
+                                    </StackPanel.ContextMenu>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition />
@@ -217,6 +224,11 @@
                                                 HorizontalAlignment="Left"
                                                 Command="{Binding AddOrUpdateEntryCommand, Source={StaticResource mainVm}}"
                                                 CommandParameter="{Binding Id}">Detail</Button>
+                                        <TextBlock HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="Gray"
+                                                   Visibility="{Binding IsDefault, Converter={StaticResource visibilityConverter}}"
+                                                   Text="- Default -" />
                                         <Button Background="Salmon"
                                                 Width="100"
                                                 HorizontalAlignment="Right"

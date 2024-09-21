@@ -40,7 +40,7 @@ namespace WPass
 
         private void ShowAbout_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(this, "From Delta with love", "💞");
+            MessageBox.Show(this, "Copyright© 2024. All rights reserved.", "About WPass");
         }
 
         private void ButtonClearSearch_Click(object sender, RoutedEventArgs e)

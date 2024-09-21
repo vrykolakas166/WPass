@@ -52,62 +52,61 @@
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <Menu>
-                    <MenuItem Header="File" >
-                        <MenuItem Header="Import..." 
-                                  Command="{Binding FileImportCommand}"/>
-                        <Separator />
-                        <MenuItem x:Name="HideWindow"
-                                  Header="Hide from taskbar" 
-                                  Command="{Binding ShowNotifyIconCommand}"/>
-                    </MenuItem>
-                    <MenuItem Header="Setting" 
-                              Command="{Binding OpenSettingCommand}"/>
-                    <MenuItem x:Name="ShowAbout" 
-                              Header="About" 
-                              Click="ShowAbout_Click"/>
-                </Menu>
-                <Grid>
-                    <Button Command="{Binding AddOrUpdateEntryCommand}"
-                            ToolTip="Add new entry..."
-                            BorderThickness="1"
-                            Padding="2"
-                            FontWeight="Bold"
-                            Background="Transparent"
-                            HorizontalAlignment="Left"
-                            Margin="5">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Width="16"
-                                   Height="16"
-                                   Source="/Resources/add.png" />
-                            <TextBlock Margin="5 0">New</TextBlock>
-                        </StackPanel>
-                    </Button>
-
-                </Grid>
-                <Button x:Name="ButtonFilter"
-                        Margin="5"
+        <StackPanel>
+            <Menu>
+                <MenuItem Header="File" >
+                    <MenuItem Header="Import..." 
+                              Command="{Binding FileImportCommand}"/>
+                    <Separator />
+                    <MenuItem x:Name="HideWindow"
+                              Header="Hide from taskbar" 
+                              Command="{Binding ShowNotifyIconCommand}"/>
+                </MenuItem>
+                <MenuItem Header="Setting" 
+                          Command="{Binding OpenSettingCommand}"/>
+                <MenuItem x:Name="ShowAbout" 
+                          Header="About" 
+                          Click="ShowAbout_Click"/>
+            </Menu>
+            <Grid>
+                <Button Command="{Binding AddOrUpdateEntryCommand}"
+                        ToolTip="Add new entry..."
+                        BorderThickness="1"
+                        Padding="2"
+                        FontWeight="Bold"
                         Background="Transparent"
-                        Click="ButtonFilter_Click">
+                        HorizontalAlignment="Left"
+                        Margin="5">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="/Resources/filter.png"
-                               Width="16"
-                               Height="16" />
-                        <TextBlock Margin="5 0">Filter</TextBlock>
+                        <Image Width="16"
+                               Height="16"
+                               Source="/Resources/add.png" />
+                        <TextBlock Margin="5 0">New</TextBlock>
                     </StackPanel>
                 </Button>
-                <StackPanel x:Name="AnimatedFilterPanel"
-                            Height="0" 
-                            Opacity="0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto"/>
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock VerticalAlignment="Center"
-                                   Margin="5">
+
+            </Grid>
+            <Button x:Name="ButtonFilter"
+                    Margin="5"
+                    Background="Transparent"
+                    Click="ButtonFilter_Click">
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="/Resources/filter.png"
+                           Width="16"
+                           Height="16" />
+                    <TextBlock Margin="5 0">Filter</TextBlock>
+                </StackPanel>
+            </Button>
+            <StackPanel x:Name="AnimatedFilterPanel"
+                        Height="0" 
+                        Opacity="0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Center"
+                               Margin="5">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock>Search </TextBlock>
                                 <TextBlock FontSize="9"
@@ -118,30 +117,30 @@
                                 </TextBlock>
                             </StackPanel>
                         </TextBlock>
-                        <TextBox x:Name="TextBoxFilterSearch"
-                                 Grid.Column="1"
-                                 Margin="5"
-                                 Text="{Binding FilteredSearchValue, UpdateSourceTrigger=PropertyChanged}"
-                                 VerticalAlignment="Center">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="TextChanged">
-                                    <i:InvokeCommandAction Command="{Binding FilterSearchCommand}"/>
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </TextBox>
-                        <Button x:Name="ButtonClearSearch" Grid.Column="1"
-                                Margin="5"
-                                Height="18"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Right"
-                                HorizontalContentAlignment="Center"
-                                Padding="4 0"
-                                Background="Transparent"
-                                Click="ButtonClearSearch_Click">
-                            Clear
-                        </Button>
-                    </Grid>
-                    <!--<StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="TextBoxFilterSearch"
+                             Grid.Column="1"
+                             Margin="5"
+                             Text="{Binding FilteredSearchValue, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="TextChanged">
+                                <i:InvokeCommandAction Command="{Binding FilterSearchCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBox>
+                    <Button x:Name="ButtonClearSearch" Grid.Column="1"
+                            Margin="5"
+                            Height="18"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            HorizontalContentAlignment="Center"
+                            Padding="4 0"
+                            Background="Transparent"
+                            Click="ButtonClearSearch_Click">
+                        Clear
+                    </Button>
+                </Grid>
+                <!--<StackPanel Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center"
                                    Margin="5">
                             Sort by username
@@ -156,35 +155,37 @@
                             </i:Interaction.Triggers>
                         </ComboBox>
                     </StackPanel>-->
-                </StackPanel>
-                <Grid Margin="5">
-                    <TextBlock VerticalAlignment="Center"
-                               TextDecorations="Underline">
+            </StackPanel>
+            <Grid Margin="5">
+                <TextBlock VerticalAlignment="Center"
+                            TextDecorations="Underline">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Total entries: "/>
                             <TextBlock Text="{Binding TotalEntries}"
                                        FontWeight="SemiBold"/>
                         </StackPanel>
                     </TextBlock>
-                    <Button x:Name="ButtonManage"
-                            Command="{Binding ManageCommand}"
-                            CommandParameter="{Binding ElementName=ButtonManage}"
-                            ToolTip="Manage entries"
-                            BorderThickness="1"
-                            BorderBrush="DarkBlue"
-                            Padding="2"
-                            FontWeight="Bold"
-                            Background="Transparent"
-                            HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Margin="5 0">Manage</TextBlock>
-                            <Image Width="16"
-                                   Height="16"
-                                   Source="/Resources/manage.png" />
-                        </StackPanel>
-                    </Button>
-                </Grid>
-                <!-- ItemsControl to Display Dynamic Controls -->
+                <Button x:Name="ButtonManage"
+                        Command="{Binding ManageCommand}"
+                        CommandParameter="{Binding ElementName=ButtonManage}"
+                        ToolTip="Manage entries"
+                        BorderThickness="1"
+                        BorderBrush="DarkBlue"
+                        Padding="2"
+                        FontWeight="Bold"
+                        Background="Transparent"
+                        HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="5 0">Manage</TextBlock>
+                        <Image Width="16"
+                               Height="16"
+                               Source="/Resources/manage.png" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          MaxHeight="350">
+                <!-- ItemsControl to Display items -->
                 <ItemsControl ItemsSource="{Binding Entries}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -244,7 +245,7 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+            </ScrollViewer>
+        </StackPanel>
     </Grid>
 </Window>

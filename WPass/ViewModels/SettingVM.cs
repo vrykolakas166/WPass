@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -88,7 +89,7 @@ namespace WPass.ViewModels
 
         private void Reset(Window w)
         {
-            BrowserElementsString = string.Join("; ", [BElement.DEFAULT_2, BElement.DEFAULT_1, BElement.DEFAULT_0]);
+            BrowserElementsString = string.Join("; ", JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON)?.Select(e => e.Name) ?? []);
 
             HotkeyFill = "Ctrl + `";
             if (w.FindName("ButtonChangeHotkey_FillData") is Button b1)
@@ -124,14 +125,20 @@ namespace WPass.ViewModels
             {
                 context.BrowserElements.Remove(be);
             }
-            await context.BrowserElements.AddAsync(new BrowserElement() { Name = BElement.DEFAULT_0 });
-            await context.BrowserElements.AddAsync(new BrowserElement() { Name = BElement.DEFAULT_1 });
-            await context.BrowserElements.AddAsync(new BrowserElement() { Name = BElement.DEFAULT_2 });
+
+            var defaultBrowserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
+            foreach (var item in defaultBrowserElements)
+            {
+                var check = context.BrowserElements.Find(item.Name);
+                if (check == null)
+                {
+                    await context.BrowserElements.AddAsync(item);
+                }
+            }
+
             foreach (var browserElement in browserElements)
             {
-                if (browserElement.Name != BElement.DEFAULT_0 &&
-                    browserElement.Name != BElement.DEFAULT_1 &&
-                    browserElement.Name != BElement.DEFAULT_2)
+                if (!defaultBrowserElements.Any(dbe => dbe.Name.Equals(browserElement.Name)))
                 {
                     await context.BrowserElements.AddAsync(new BrowserElement() { Name = browserElement.Name });
                 }

@@ -146,7 +146,7 @@ namespace WPass.ViewModels
                 newEntry.IsDefault = true;
                 context.Entries.Update(newEntry);
 
-                if(oldEntry != null)
+                if (oldEntry != null)
                 {
                     oldEntry.IsDefault = false;
                     context.Entries.Update(oldEntry);
@@ -313,7 +313,7 @@ namespace WPass.ViewModels
                     }
 
                     var rs = await context.SaveChangesAsync();
-                    
+
                     if (rs > 0) await LoadData();
                 }
             }
@@ -417,6 +417,7 @@ namespace WPass.ViewModels
                 var item = EntryDto.MapFrom(entry);
                 if (item.IsDefault)
                 {
+                    GlobalSession.DefaultEntry = item;
                     Entries.Insert(0, item);
                     GlobalSession.EntryDtos.Insert(0, item);
                     notFound = false;
@@ -441,6 +442,10 @@ namespace WPass.ViewModels
                     Entries[0].IsDefault = true;
                     GlobalSession.EntryDtos[0].IsDefault = true;
                     GlobalSession.DefaultEntry = EntryDto.MapFrom(item);
+                }
+                else // empty
+                {
+                    GlobalSession.DefaultEntry = null;
                 }
             }
 

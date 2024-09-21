@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Newtonsoft.Json;
+using System.Windows;
 using WPass.Constant;
 using WPass.Core;
 using WPass.Core.Model;
@@ -61,25 +62,16 @@ namespace WPass
         {
             var context = new WPContext();
             GlobalSession.BrowserElements = []; // new session
-            var browserElement1 = new BrowserElement() { Name = BElement.DEFAULT_0 };
-            var browserElement2 = new BrowserElement() { Name = BElement.DEFAULT_1 };
-            var browserElement3 = new BrowserElement() { Name = BElement.DEFAULT_2 };
 
-            var check1 = context.BrowserElements.Find(browserElement1.Name);
-            var check2 = context.BrowserElements.Find(browserElement2.Name);
-            var check3 = context.BrowserElements.Find(browserElement3.Name);
+            var browserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
 
-            if (check1 == null)
+            foreach(var item in browserElements)
             {
-                await context.BrowserElements.AddAsync(browserElement1);
-            }
-            if (check2 == null)
-            {
-                await context.BrowserElements.AddAsync(browserElement2);
-            }
-            if (check3 == null)
-            {
-                await context.BrowserElements.AddAsync(browserElement3);
+                var check = context.BrowserElements.Find(item.Name);
+                if (check == null)
+                {
+                    await context.BrowserElements.AddAsync(item);
+                }
             }
 
             if (!context.Settings.Any())
@@ -109,7 +101,7 @@ namespace WPass
 
             await context.SaveChangesAsync();
 
-            GlobalSession.BrowserElements.AddRange(context.BrowserElements); // saved session data 
+            GlobalSession.BrowserElements.AddRange(browserElements); // saved session data 
         }
     }
 }

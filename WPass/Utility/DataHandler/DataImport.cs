@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using WPass.Core.Model;
+using WPass.Utility.OtherHandler;
+using WPass.Utility.SecurityHandler;
 
-namespace WPass.Utility
+namespace WPass.Utility.DataHandler
 {
     public static class DataImport
     {
@@ -66,7 +68,7 @@ namespace WPass.Utility
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 // log err
                 Logger.Write(ex.Message);

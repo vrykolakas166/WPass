@@ -1,4 +1,4 @@
-﻿namespace WPass.Utility
+﻿namespace WPass.Utility.OtherHandler
 {
     public static class Logger
     {

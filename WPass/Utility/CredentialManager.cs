@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Automation;
 using WPass.Core.Model;
+using WPass.Utility.OtherHandler;
+using WPass.Utility.WindowHandler;
 
 namespace WPass.Utility
 {
     public static class CredentialManager
     {
-        static string[] AddressBars = ["Address and search bar", "Address field"];
+        private static readonly string[] _addressBars = ["Address and search bar", "Address field"];
         /// <summary>
         /// Set data on fields
         /// </summary>
@@ -63,7 +64,7 @@ namespace WPass.Utility
                         str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
 
                         // check current url
-                        if (AddressBars.Contains(element.Current.Name))
+                        if (_addressBars.Contains(element.Current.Name))
                         {
                             if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
                             {

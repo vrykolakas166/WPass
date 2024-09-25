@@ -3,7 +3,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using WPass.Core.Model;
-using WPass.Utility;
+using WPass.Utility.SecurityHandler;
 
 namespace WPass.DTO
 {

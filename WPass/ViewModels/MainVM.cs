@@ -8,6 +8,10 @@ using WPass.Constant;
 using WPass.Core;
 using WPass.DTO;
 using WPass.Utility;
+using WPass.Utility.DataHandler;
+using WPass.Utility.HotkeyHandler;
+using WPass.Utility.OtherHandler;
+using WPass.Utility.SecurityHandler;
 
 namespace WPass.ViewModels
 {

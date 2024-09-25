@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace WPass.Utility
+namespace WPass.Utility.SecurityHandler
 {
     public class Security
     {

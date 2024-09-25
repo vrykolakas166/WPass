@@ -2,7 +2,7 @@
 using System.Text;
 using System.Windows.Automation;
 
-namespace WPass.Utility
+namespace WPass.Utility.WindowHandler
 {
     public partial class EnumWindowsHelper
     {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace WPass.Utility;
+namespace WPass.Utility.WindowHandler;
 
 public partial class KeyboardSimulator
 {

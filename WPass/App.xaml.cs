@@ -3,7 +3,7 @@ using System.Windows;
 using WPass.Constant;
 using WPass.Core;
 using WPass.Core.Model;
-using WPass.Utility;
+using WPass.Utility.OtherHandler;
 
 namespace WPass
 {

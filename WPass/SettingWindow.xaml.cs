@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using WPass.Utility;
+using WPass.Utility.HotkeyHandler;
 using WPass.ViewModels;
 
 namespace WPass

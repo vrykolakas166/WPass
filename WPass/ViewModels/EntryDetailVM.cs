@@ -6,7 +6,7 @@ using ViewModels.Base;
 using WPass.Core;
 using WPass.Core.Model;
 using WPass.DTO;
-using WPass.Utility;
+using WPass.Utility.SecurityHandler;
 
 namespace WPass.ViewModels
 {

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media.Animation;
 using WPass.Core;
-using WPass.Utility;
+using WPass.Utility.OtherHandler;
 using WPass.ViewModels;
 
 namespace WPass
@@ -82,7 +82,7 @@ namespace WPass
                 }
             }
 
-            MyNotifyIcon.Dispose(); //clean up notifyicon (would otherwise stay open until application finishes)
+            MyNotifyIcon?.Dispose(); //clean up notifyicon (would otherwise stay open until application finishes)
             base.OnClosing(e);
         }
 

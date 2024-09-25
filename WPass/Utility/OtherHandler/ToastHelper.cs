@@ -1,6 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 
-namespace WPass.Utility
+namespace WPass.Utility.OtherHandler
 {
     public class ToastHelper
     {

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace WPass.Utility
+namespace WPass.Utility.HotkeyHandler
 {
     public static class KeyCollector
     {

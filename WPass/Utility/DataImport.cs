@@ -66,9 +66,10 @@ namespace WPass.Utility
                     }
                 }
             }
-            catch
+            catch(Exception ex)
             {
                 // log err
+                Logger.Write(ex.Message);
             }
 
             return (entries, websites);

@@ -3,6 +3,7 @@ using System.Windows;
 using WPass.Constant;
 using WPass.Core;
 using WPass.Core.Model;
+using WPass.Utility;
 
 namespace WPass
 {
@@ -24,11 +25,7 @@ namespace WPass
             {
                 Exception ex = (Exception)args.ExceptionObject;
                 var error = $"Unhandled exception: {ex.Message}\n{ex.StackTrace}";
-                var logFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Log");
-                var logFile = System.IO.Path.Combine(logFolder, "error.txt");
-                if (!System.IO.Directory.Exists(logFolder)) System.IO.Directory.CreateDirectory(logFolder);
-                if (!System.IO.File.Exists(logFile)) System.IO.File.Create(logFile).Close();
-                System.IO.File.WriteAllText(logFile, error);
+                Logger.Write(error);
             };
 
             // Create default data
@@ -65,7 +62,7 @@ namespace WPass
 
             var browserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
 
-            foreach(var item in browserElements)
+            foreach (var item in browserElements)
             {
                 var check = context.BrowserElements.Find(item.Name);
                 if (check == null)

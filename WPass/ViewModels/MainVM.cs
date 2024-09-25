@@ -317,10 +317,11 @@ namespace WPass.ViewModels
                     if (rs > 0) await LoadData();
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // log
                 MessageBox.Show("Something's wrong. Please contact dev :)", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.Write(ex.Message);
             }
         }
 
@@ -402,11 +403,17 @@ namespace WPass.ViewModels
             KeyListenner.UnregisterAll(window);
         }
 
-        public async Task LoadData()
+        public async Task LoadData(bool isFilter = false)
         {
             bool notFound = true;
             var context = new WPContext();
             Entries.Clear();
+            if (!isFilter)
+            {
+                GlobalSession.EntryDtos.Clear();
+                _stringSumList = [];
+            }
+
             var entries = await context.Entries
                 .Include(e => e.Websites)
                 .OrderByDescending(e => e.CreatedAt)
@@ -452,7 +459,6 @@ namespace WPass.ViewModels
             TotalEntries = Entries.Count;
 
             // get summary string to for filter search function
-            _stringSumList = [];
             foreach (var item in GlobalSession.EntryDtos)
             {
                 _stringSumList.Add(new Tuple<string, string>(item.Id, item.Username));
@@ -494,6 +500,10 @@ namespace WPass.ViewModels
 
                     await context.SaveChangesAsync();
                     await LoadData();
+                    if (!string.IsNullOrEmpty(FilteredSearchValue))
+                    {
+                        FilterSearch();
+                    }
                 }
             }
         }

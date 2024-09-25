@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Windows;
 using System.Windows.Automation;
 using WPass.Core.Model;
 
@@ -6,6 +7,7 @@ namespace WPass.Utility
 {
     public static class CredentialManager
     {
+        static string[] AddressBars = ["Address and search bar", "Address field"];
         /// <summary>
         /// Set data on fields
         /// </summary>
@@ -19,45 +21,77 @@ namespace WPass.Utility
                 bool usernameIsSet = false;
                 bool passwordIsSet = false;
 
-                // Get the root Automation element
-                AutomationElement rootElement = AutomationElement.RootElement;
+                List<AutomationElement> browserWindows = [];
 
-                // Find all browser windows (like Chrome, Edge, Firefox)
-                var condition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window);
-                AutomationElementCollection browserWindows = rootElement.FindAll(TreeScope.Children, condition);
-
-                foreach (AutomationElement window in browserWindows)
+                // this can change to setting in the future
+                // right now: allow to fill credentials on focus browser
+                if (true)
                 {
-                    // Filter out based on the process name (e.g., "chrome", "msedge", "firefox")
-                    if (window.Current.Name.Contains("Chrome") || window.Current.Name.Contains("Edge"))
+                    browserWindows.Add(EnumWindowsHelper.GetFocusBrowserWindow());
+                }
+                //else
+                //{
+                //    //// Find all browser windows (like Chrome, Edge, Firefox)
+                //    browserWindows = EnumWindowsHelper.GetBrowserWindows();
+                //}
+
+                var windowName = "";
+                windowName += $"1.AutomationElement.FocusedElement.Current.Name: {AutomationElement.FocusedElement.Current.Name}\n\n";
+                var str = "Name, ProgrammaticName \n";
+
+                var oUsername = string.Empty;
+                var oPassword = string.Empty;
+                foreach (AutomationElement window in browserWindows) // only 1 focused element
+                {
+                    windowName += "(" + window.Current.ClassName + " - " + window.Current.Name + "); ";
+                    var isEdge = window.Current.Name.Contains("Microsoft​ Edge"); // UI Automation support Edge only
+
+                    AutomationElementCollection elements;
+
+                    if (isEdge)
                     {
-                        // Get the URL bar element or any focused element
-                        AutomationElement focusedElement = AutomationElement.FocusedElement;
+                        elements = window.FindAll(TreeScope.Descendants, System.Windows.Automation.Condition.TrueCondition);
+                    }
+                    else
+                    {
+                        var editCondition = new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit);
+                        elements = window.FindAll(TreeScope.Children, editCondition);
+                    }
 
-                        var elements = window.FindAll(TreeScope.Descendants, System.Windows.Automation.Condition.TrueCondition);
-                        var str = "Name, ProgrammaticName \n";
-                        foreach (AutomationElement element in elements)
+                    foreach (AutomationElement element in elements)
+                    {
+                        str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
+
+                        // check current url
+                        if (AddressBars.Contains(element.Current.Name))
                         {
-                            str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
-
-                            // check current url
-                            if (element.Current.Name == "Address and search bar")
+                            if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
                             {
-                                if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
+                                var valuePattern = (ValuePattern)pattern;
+                                currentUrl = valuePattern.Current.Value;
+                                if (isEdge)
                                 {
-                                    var valuePattern = (ValuePattern)pattern;
-                                    currentUrl = valuePattern.Current.Value;
+                                    continue;
+                                }
+                                else
+                                {
+                                    break;
                                 }
                             }
+                        }
 
+                        windowName += $"\n{window.Current.Name}: " + currentUrl;
+                        // continue; // collect info when debug
+                        if (isEdge)
+                        {
                             // fill data
                             if (!usernameIsSet)
                             {
-                                usernameIsSet = SetUsername(element, currentUrl, isClear);
+                                usernameIsSet = SetUsername(element, currentUrl, out oUsername, isClear);
                             }
                             if (!passwordIsSet)
                             {
-                                passwordIsSet = SetPassword(element, currentUrl, isClear);
+                                passwordIsSet = SetPassword(element, currentUrl, out oPassword, isClear);
                             }
 
                             if (usernameIsSet && passwordIsSet && !isClear)
@@ -69,27 +103,57 @@ namespace WPass.Utility
                                 break;
                             }
                         }
+                    }
 
+                    if (!isEdge && !isClear)
+                    {
+                        _ = SetUsername(null, currentUrl, out oUsername, isClear);
+                        _ = SetPassword(null, currentUrl, out oPassword, isClear);
+                        // if not set
+                        // go here
+                        // using oUsername and oPassword and using keyboard simulator
+                        KeyboardSimulator.SendUsernameAndPassword(oUsername, oPassword);
+                        usernameIsSet = true;
+                        passwordIsSet = true;
+
+                        // case Edge but using keyboard simulator
+                        var usernameIsSetBySimulator = false;
                         if (!usernameIsSet)
                         {
                             // log
-                            // MessageBox.Show("Cannot find username element.\n This website's elements will be sent to developer in order to fix this in the future.\n Sorry for you inconvenience.");
+                            Logger.Write("Cannot find username element. Using keyboard simulator instead.");
+
+                            // if cannot find username element using keyboard simulator instead
+                            // and current focused element is a edit control (username input specifically)
+                            if (!string.IsNullOrEmpty(oUsername) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit)
+                            {
+                                KeyboardSimulator.ReleaseCtrlKey();
+                                KeyboardSimulator.ReleaseAltKey();
+                                KeyboardSimulator.SendSentence(oUsername);
+                                usernameIsSetBySimulator = true;
+                            }
                         }
-                        else if (!passwordIsSet)
+                        if (!passwordIsSet)
                         {
                             // log
-                            // MessageBox.Show("Cannot find password element.\n This website's elements will be sent to developer in order to fix this in the future.\n Sorry for you inconvenience.");
+                            Logger.Write($"Cannot find password element. Using keyboard simulator instead.");
+                            if (!string.IsNullOrEmpty(oPassword) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit && usernameIsSetBySimulator)
+                            {
+                                KeyboardSimulator.SendTabKey();
+                                KeyboardSimulator.SendSentence(oPassword);
+                            }
                         }
-
-                        // save website info to log in order to investigate
-                        //File.Create("C:\\Users\\hhtbb\\Desktop\\New folder\\text.csv").Close();
-                        //File.WriteAllText("C:\\Users\\hhtbb\\Desktop\\New folder\\text.csv", str);
                     }
+
+                    // save website info to log in order to investigate
+                    Logger.Write(str, "elements.csv");
+                    Logger.Write(windowName, "windows.txt");
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // log error
+                Logger.Write(ex.Message);
             }
         }
 
@@ -131,87 +195,125 @@ namespace WPass.Utility
             catch { return false; }
         }
 
-        public static bool SetUsername(AutomationElement element, string currentUrl, bool isClear = false)
+        public static bool SetUsername(AutomationElement? element, string currentUrl, out string username, bool isClear = false)
         {
-            if (GlobalSession.BrowserElements.Any(field => field.Name.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
+            username = string.Empty;
+            if (element != null)
             {
-                // Check if the element supports ValuePattern
-                if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
+                if (GlobalSession.BrowserElements.Any(field => field.Name.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
                 {
-                    var valuePattern = (ValuePattern)pattern;
-                    if (!isClear)
+                    // Check if the element supports ValuePattern
+                    if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
                     {
-                        // get from db
-                        if (GlobalSession.EntryDtos.Count > 0)
+                        var valuePattern = (ValuePattern)pattern;
+                        if (!isClear)
                         {
-                            foreach (var entry in GlobalSession.EntryDtos)
+                            if (GlobalSession.EntryDtos.Count > 0)
                             {
-                                if (IsSameWebsite([.. entry.Websites], currentUrl))
+                                foreach (var entry in GlobalSession.EntryDtos)
                                 {
-                                    valuePattern.SetValue(entry.Username);
-                                    return true;
+                                    if (IsSameWebsite([.. entry.Websites], currentUrl))
+                                    {
+                                        valuePattern.SetValue(entry.Username);
+                                        username = entry.Username;
+                                        return true;
+                                    }
                                 }
-                            }
 
-                            valuePattern.SetValue(GlobalSession.DefaultEntry?.Username ?? "");
-                            return true;
+                                valuePattern.SetValue(GlobalSession.DefaultEntry?.Username ?? "");
+                                username = GlobalSession.DefaultEntry?.Username ?? "";
+                                return true;
+                            }
+                            return false;
                         }
-                        return false;
+                        else
+                        {
+                            valuePattern.SetValue(string.Empty);
+                        }
+                        return true;
                     }
                     else
                     {
-                        valuePattern.SetValue(string.Empty);
+                        MessageBox.Show("Elements are not supported on this website.");
+                        return false;
                     }
-                    return true;
                 }
-                else
+            }
+
+            // if cannot find element, simulate keyboard
+            if (GlobalSession.EntryDtos.Count > 0)
+            {
+                foreach (var entry in GlobalSession.EntryDtos)
                 {
-                    MessageBox.Show("Elements are not supported on this website.");
-                    return false;
+                    if (IsSameWebsite([.. entry.Websites], currentUrl))
+                    {
+                        username = entry.Username;
+                    }
                 }
+
+                username = GlobalSession.DefaultEntry?.Username ?? "";
             }
 
             return false;
         }
 
-        public static bool SetPassword(AutomationElement element, string currentUrl, bool isClear = false)
+        public static bool SetPassword(AutomationElement? element, string currentUrl, out string password, bool isClear = false)
         {
-            if (element.Current.Name.ToLower().Equals("password") && element.Current.ControlType.Equals(ControlType.Edit))
+            password = string.Empty;
+            if (element != null)
             {
-                // Check if the element supports ValuePattern
-                if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
+                if ((element.Current.Name.Equals("password", StringComparison.OrdinalIgnoreCase) || element.Current.Name.Equals("Mật khẩu", StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
                 {
-                    var valuePattern = (ValuePattern)pattern;
-                    if (!isClear)
+                    // Check if the element supports ValuePattern
+                    if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
                     {
-                        // get from db
-                        if (GlobalSession.EntryDtos.Count > 0)
+                        var valuePattern = (ValuePattern)pattern;
+                        if (!isClear)
                         {
-                            foreach (var entry in GlobalSession.EntryDtos)
+                            if (GlobalSession.EntryDtos.Count > 0)
                             {
-                                if (IsSameWebsite([.. entry.Websites], currentUrl))
+                                foreach (var entry in GlobalSession.EntryDtos)
                                 {
-                                    valuePattern.SetValue(entry.Password);
-                                    return true;
+                                    if (IsSameWebsite([.. entry.Websites], currentUrl))
+                                    {
+                                        valuePattern.SetValue(entry.Password);
+                                        password = entry.Password;
+                                        return true;
+                                    }
                                 }
-                            }
 
-                            valuePattern.SetValue(GlobalSession.DefaultEntry?.Password ?? "");
-                            return true;
+                                valuePattern.SetValue(GlobalSession.DefaultEntry?.Password ?? "");
+                                password = GlobalSession.DefaultEntry?.Password ?? "";
+                                return true;
+                            }
+                            return false;
                         }
-                        return false;
+                        else
+                        {
+                            valuePattern.SetValue(string.Empty);
+                        }
+                        return true;
                     }
                     else
                     {
-                        valuePattern.SetValue(string.Empty);
+                        MessageBox.Show("Elements are not supported on this website.");
+                        return false;
                     }
-                    return true;
                 }
-                else
+            }
+
+            // if cannot find element, simulate keyboard
+            if (GlobalSession.EntryDtos.Count > 0)
+            {
+                foreach (var entry in GlobalSession.EntryDtos)
                 {
-                    MessageBox.Show("Elements are not supported on this website.");
-                    return false;
+                    if (IsSameWebsite([.. entry.Websites], currentUrl))
+                    {
+                        password = entry.Password;
+                    }
                 }
+
+                password = GlobalSession.DefaultEntry?.Password ?? "";
             }
 
             return false;

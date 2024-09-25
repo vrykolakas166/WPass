@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Emit;
-using System.Xml.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WPass.Core.Model
 {

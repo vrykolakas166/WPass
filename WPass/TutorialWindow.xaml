@@ -25,6 +25,19 @@
                       Opacity="0.5" />
         </Border.Effect>
         <Grid>
+            <Grid x:Name="GridLoading"
+                  Margin="10"
+                  Panel.ZIndex="99">
+                <Grid.Background>
+                    <SolidColorBrush Color="White"
+                                     Opacity="0.5" />
+                </Grid.Background>
+                <TextBlock Text=". . . L O A D I N G . . ."
+                           FontWeight="SemiBold"
+                           FontSize="20"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Grid>
             <Button x:Name="ButtonClose"
                     Panel.ZIndex="3"
                     Click="ButtonClose_Click"

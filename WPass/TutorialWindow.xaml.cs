@@ -139,31 +139,35 @@ namespace WPass
             }
         }
 
-        private void TWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void TWindow_Loaded(object sender, RoutedEventArgs e)
         {
             _totalGIf = 3;
-            LoadGif(WelcomeGif, "/Resources/Tutorial/welcome.gif");
-            LoadGif(AddGif, "/Resources/Tutorial/manual_add.gif");
-            LoadGif(ImportGif, "/Resources/Tutorial/import.gif");
+            await Task.Run(() =>
+            {
+                Dispatcher.Invoke(() => GridLoading.Visibility = Visibility.Visible);
+            });
+            await Task.Run(() => LoadGif(WelcomeGif, "/Resources/Tutorial/welcome.gif"));
+            await Task.Run(() => LoadGif(AddGif, "/Resources/Tutorial/manual_add.gif"));
+            await Task.Run(() => LoadGif(ImportGif, "/Resources/Tutorial/import.gif"));
         }
 
         private void LoadGif(Image imageControl, string path)
         {
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = new Uri($"pack://application:,,,{path}");
-            image.EndInit();
-
-            ImageBehavior.SetAnimatedSource(imageControl, image);
-
-            if (ImageBehavior.GetIsAnimationLoaded(imageControl))
+            Dispatcher.Invoke(() =>
             {
-                _totalGIf -= 1;
-                if (_totalGIf == 0)
+                var image = new BitmapImage(new Uri($"pack://application:,,,{path}"));
+                ImageBehavior.SetAnimatedSource(imageControl, image);
+
+                if (ImageBehavior.GetIsAnimationLoaded(imageControl))
                 {
-                    // loaded
+                    _totalGIf -= 1;
+                    if (_totalGIf == 0)
+                    {
+                        // loaded
+                        GridLoading.Visibility = Visibility.Collapsed;
+                    }
                 }
-            }
+            });
         }
     }
 }

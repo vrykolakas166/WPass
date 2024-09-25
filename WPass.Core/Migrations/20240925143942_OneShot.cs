@@ -26,11 +26,11 @@ namespace WPass.Core.Migrations
                 name: "Entries",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<string>(type: "CHAR", maxLength: 36, nullable: false),
+                    Username = table.Column<string>(type: "NVARCHAR", maxLength: 50, nullable: false),
                     EncryptedPassword = table.Column<string>(type: "TEXT", nullable: false),
-                    IsDefault = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    IsDefault = table.Column<bool>(type: "BIT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "DATETIME", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,7 +41,7 @@ namespace WPass.Core.Migrations
                 name: "Settings",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Key = table.Column<string>(type: "VARCHAR", maxLength: 100, nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -53,9 +53,9 @@ namespace WPass.Core.Migrations
                 name: "Websites",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Id = table.Column<string>(type: "CHAR", maxLength: 36, nullable: false),
                     Url = table.Column<string>(type: "TEXT", nullable: false),
-                    EntryId = table.Column<string>(type: "TEXT", nullable: true)
+                    EntryId = table.Column<string>(type: "CHAR", nullable: true)
                 },
                 constraints: table =>
                 {

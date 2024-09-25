@@ -11,7 +11,7 @@ using WPass.Core;
 namespace WPass.Core.Migrations
 {
     [DbContext(typeof(WPContext))]
-    [Migration("20240921184430_OneShot")]
+    [Migration("20240925143942_OneShot")]
     partial class OneShot
     {
         /// <inheritdoc />
@@ -33,21 +33,23 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Entry", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(36)
+                        .HasColumnType("CHAR");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("EncryptedPassword")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDefault")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BIT");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("NVARCHAR");
 
                     b.HasKey("Id");
 
@@ -57,7 +59,8 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Setting", b =>
                 {
                     b.Property<string>("Key")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(100)
+                        .HasColumnType("VARCHAR");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -71,10 +74,11 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Website", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(36)
+                        .HasColumnType("CHAR");
 
                     b.Property<string>("EntryId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("CHAR");
 
                     b.Property<string>("Url")
                         .IsRequired()

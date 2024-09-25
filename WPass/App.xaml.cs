@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Windows;
 using WPass.Constant;
 using WPass.Core;
@@ -14,8 +15,9 @@ namespace WPass
     {
         private static Mutex? _mutex;
         public static bool FirstUsed { get; set; } = false;
+        public static bool PasscodeIsNotCreated { get; set; } = false;
 
-        protected override async void OnStartup(StartupEventArgs e)
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
             // Check instance
             CheckBeforeStart();
@@ -31,7 +33,19 @@ namespace WPass
             // Create default data
             await SeedData();
 
-            base.OnStartup(e);
+            // Start
+            LoginWindow login = new(LoginWindow.Mode.Normal);
+            if (FirstUsed)
+            {
+                new TutorialWindow().ShowDialog();
+                login = new(LoginWindow.Mode.Create);
+            }
+
+            if (PasscodeIsNotCreated)
+            {
+                login = new(LoginWindow.Mode.Create);
+            }
+            login.Show();
         }
 
         private static void CheckBeforeStart()
@@ -94,6 +108,14 @@ namespace WPass
                     Key = Constant.Setting.WINDOW_STARTUP,
                     Value = "false"
                 });
+            }
+            else
+            {
+                var passSetting = await context.Settings.FirstOrDefaultAsync(s => s.Key.Equals(Constant.Setting.PASSCODE));
+                if (passSetting == null)
+                {
+                    PasscodeIsNotCreated = true;
+                }
             }
 
             await context.SaveChangesAsync();

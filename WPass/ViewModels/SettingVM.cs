@@ -72,6 +72,9 @@ namespace WPass.ViewModels
             }
         }
 
+        public ICommand UpdatePasscodeCommand { get; set; }
+        public ICommand ResetPasscodeCommand { get; set; }
+
         public ICommand ResetCommand { get; set; }
         public ICommand SaveCommand { get; set; }
 
@@ -83,8 +86,16 @@ namespace WPass.ViewModels
 
             LoadData();
 
+            UpdatePasscodeCommand = new BaseCommand<object>(c => true, c => OpenUpdatePasscode());
+            ResetPasscodeCommand = new BaseCommand<Window>(c => true, c => { });
+
             ResetCommand = new BaseCommand<Window>(c => true, Reset);
             SaveCommand = new BaseCommand<Window>(c => CanSave(), Save);
+        }
+
+        private void OpenUpdatePasscode()
+        {
+            new LoginWindow(LoginWindow.Mode.Change).ShowDialog();
         }
 
         private void Reset(Window w)

@@ -28,6 +28,23 @@
                 </GroupBox>
                 <GroupBox>
                     <GroupBox.Header>
+                        <TextBlock FontWeight="Bold">Passcode</TextBlock>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0"
+                                Background="Gray"
+                                Foreground="White"
+                                Command="{Binding UpdatePasscodeCommand}">Update</Button>
+                        <Button Grid.Column="1"
+                                Background="IndianRed">Reset</Button>
+                    </Grid>
+                </GroupBox>
+                <GroupBox>
+                    <GroupBox.Header>
                         <TextBlock FontWeight="Bold">Hotkeys</TextBlock>
                     </GroupBox.Header>
                     <StackPanel>
@@ -41,12 +58,21 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Grid.Row="0">Fill data</TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="0"
+                                       VerticalAlignment="Center">Auto fill credentials</TextBlock>
                             <Button x:Name="ButtonChangeHotkey_FillData" 
                                     Grid.Column="1" Grid.Row="0"
                                     Content="{Binding HotkeyFill, UpdateSourceTrigger=PropertyChanged}"
                                     Click="ButtonChangeHotkey_FillData_Click" />
-                            <TextBlock Grid.Column="0" Grid.Row="1">Clear data</TextBlock>
+                            <TextBlock Grid.Column="0" Grid.Row="1"
+                                       VerticalAlignment="Center">
+                                <StackPanel>
+                                    <TextBlock>Auto clear credentials</TextBlock>
+                                    <TextBlock FontSize="8"
+                                               FontStyle="Italic"
+                                               Foreground="Gray">This can be used in Edge only</TextBlock>
+                                </StackPanel>
+                            </TextBlock>
                             <Button x:Name="ButtonChangeHotkey_ClearData" 
                                     Grid.Column="1" Grid.Row="1"
                                     Content="{Binding HotkeyClear, UpdateSourceTrigger=PropertyChanged}"
@@ -73,7 +99,9 @@
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Grid.Row="0">Hidden when close</TextBlock>
+                        <TextBlock Grid.Column="0" 
+                                   Grid.Row="0"
+                                   VerticalAlignment="Center">Hidden when close</TextBlock>
                         <CheckBox Grid.Column="1" Grid.Row="0" 
                                   IsChecked="{Binding HideOnClose, UpdateSourceTrigger=PropertyChanged}"/>
                         <!--<TextBlock Grid.Column="0" Grid.Row="1">Window startup</TextBlock>

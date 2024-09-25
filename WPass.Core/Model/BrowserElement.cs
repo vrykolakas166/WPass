@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WPass.Core.Model
 {
@@ -15,6 +16,7 @@ namespace WPass.Core.Model
     public class BrowserElement
     {
         [Key]
+        [Column(TypeName = "TEXT")]
         public string Name { get; set; } = "Username";
     }
 }

@@ -30,21 +30,23 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Entry", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(36)
+                        .HasColumnType("CHAR");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("DATETIME");
 
                     b.Property<string>("EncryptedPassword")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDefault")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("BIT");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("NVARCHAR");
 
                     b.HasKey("Id");
 
@@ -54,7 +56,8 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Setting", b =>
                 {
                     b.Property<string>("Key")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(100)
+                        .HasColumnType("VARCHAR");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -68,10 +71,11 @@ namespace WPass.Core.Migrations
             modelBuilder.Entity("WPass.Core.Model.Website", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(36)
+                        .HasColumnType("CHAR");
 
                     b.Property<string>("EntryId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("CHAR");
 
                     b.Property<string>("Url")
                         .IsRequired()

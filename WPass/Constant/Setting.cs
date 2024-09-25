@@ -2,6 +2,8 @@
 {
     public class Setting
     {
+        public const string PASSCODE = "PASSCODE";
+
         public const string HOTKEY_FILL_DATA = "HOTKEY_FILL_DATA";
         public const string HOTKEY_CLEAR_DATA = "HOTKEY_CLEAR_DATA";
 

@@ -87,16 +87,23 @@ namespace WPass.ViewModels
 
             LoadData();
 
-            UpdatePasscodeCommand = new BaseCommand<object>(c => true, c => OpenUpdatePasscode());
-            ResetPasscodeCommand = new BaseCommand<Window>(c => true, async c => await PasscodeManager.ResetAsync());
+            UpdatePasscodeCommand = new BaseCommand<Window>(c => true, OpenUpdatePasscode);
+            ResetPasscodeCommand = new BaseCommand<Window>(c => true, ResetPasscodeAsync);
 
             ResetCommand = new BaseCommand<Window>(c => true, Reset);
             SaveCommand = new BaseCommand<Window>(c => CanSave(), Save);
         }
 
-        private static void OpenUpdatePasscode()
+        private async Task ResetPasscodeAsync(Window w)
+        {
+            await PasscodeManager.ResetAsync();
+            w.Close();
+        }
+
+        private static void OpenUpdatePasscode(Window w)
         {
             new LoginWindow(LoginWindow.Mode.Change).ShowDialog();
+            w.Close();
         }
 
         private void Reset(Window w)
@@ -200,7 +207,10 @@ namespace WPass.ViewModels
 
             foreach (var s in settings)
             {
-                _lastSavedData += s.Value;
+                if (!s.Key.Equals(Constant.Setting.PASSCODE)) // ignore passcode section
+                {
+                    _lastSavedData += s.Value;
+                }
                 switch (s.Key)
                 {
                     case Constant.Setting.HOTKEY_FILL_DATA:

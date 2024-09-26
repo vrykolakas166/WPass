@@ -33,7 +33,7 @@ namespace WPass
             // Create default data
             await SeedData();
 
-            // Start
+            // Start the application
             LoginWindow login = new(LoginWindow.Mode.Normal);
             if (FirstUsed)
             {

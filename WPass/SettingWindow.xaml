@@ -38,10 +38,16 @@
                         <Button Grid.Column="0"
                                 Background="Gray"
                                 Foreground="White"
-                                Command="{Binding UpdatePasscodeCommand}">Update</Button>
+                                Command="{Binding UpdatePasscodeCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
+                            Update
+                        </Button>
                         <Button Grid.Column="1"
                                 Background="IndianRed"
-                                Command="{Binding ResetPasscodeCommand}">Reset</Button>
+                                Command="{Binding ResetPasscodeCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
+                            Reset
+                        </Button>
                     </Grid>
                 </GroupBox>
                 <GroupBox>

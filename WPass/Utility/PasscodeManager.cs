@@ -5,6 +5,7 @@ using System.Windows.Interop;
 using WPass.Constant;
 using WPass.Core;
 using WPass.Utility.OtherHandler;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static WPass.Utility.SecurityHandler.WindowAuthentication;
 
 namespace WPass.Utility
@@ -19,8 +20,16 @@ namespace WPass.Utility
                 // Verify the user's password using LogonUser or another method
                 if (ValidateUser(username, password))
                 {
+                    var msg = "This action will reset master passcode, " +
+                        "but in order to protect your data, " +
+                        "we will delete all your saved entries." +
+                        Environment.NewLine +
+                        "\nApplication will be restart after this action. Please wait a second." +
+                        Environment.NewLine +
+                        "\nContinue ?";
+
                     // Execute the operation
-                    if (MessageBox.Show("This action will reset master passcode, but in order to protect your data, we will delete all your saved entries. Continue ?\n Application will be restart after this.", "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
+                    if (MessageBox.Show(msg, "Warning", MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK)
                     {
                         using var context = new WPContext();
                         // Reset passcode
@@ -40,7 +49,20 @@ namespace WPass.Utility
                         if (currentProcess.MainModule != null)
                         {
                             MainWindow.ForceToClose = true;
-                            Process.Start(currentProcess.MainModule.FileName);
+
+                            // Command to execute after a 2-second delay
+                            string command = $"/C timeout /t 2 && {currentProcess.MainModule.FileName}";
+
+                            // Create a process to run CMD with the command
+                            ProcessStartInfo processStartInfo = new("cmd.exe", command)
+                            {
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            };
+
+                            // Start the process
+                            Process.Start(processStartInfo);
+
                             // Close the current application
                             Application.Current.Shutdown();
                         }

@@ -83,7 +83,8 @@ namespace WPass
             }
 
             MyNotifyIcon?.Dispose(); //clean up notifyicon (would otherwise stay open until application finishes)
-            base.OnClosing(e);
+
+            Application.Current.Shutdown();
         }
 
         #region Filter click animation

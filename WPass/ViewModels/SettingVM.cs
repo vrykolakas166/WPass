@@ -7,6 +7,7 @@ using ViewModels.Base;
 using WPass.Constant;
 using WPass.Core;
 using WPass.Core.Model;
+using WPass.Utility;
 
 namespace WPass.ViewModels
 {
@@ -87,13 +88,13 @@ namespace WPass.ViewModels
             LoadData();
 
             UpdatePasscodeCommand = new BaseCommand<object>(c => true, c => OpenUpdatePasscode());
-            ResetPasscodeCommand = new BaseCommand<Window>(c => true, c => { });
+            ResetPasscodeCommand = new BaseCommand<Window>(c => true, async c => await PasscodeManager.ResetAsync());
 
             ResetCommand = new BaseCommand<Window>(c => true, Reset);
             SaveCommand = new BaseCommand<Window>(c => CanSave(), Save);
         }
 
-        private void OpenUpdatePasscode()
+        private static void OpenUpdatePasscode()
         {
             new LoginWindow(LoginWindow.Mode.Change).ShowDialog();
         }

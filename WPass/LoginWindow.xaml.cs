@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using WPass.Constant;
 using WPass.Core;
+using WPass.Utility;
 using WPass.Utility.SecurityHandler;
 
 namespace WPass
@@ -39,10 +40,9 @@ namespace WPass
 
 
         private object _lastContent = string.Empty;
-        private Mode _mode = Mode.Normal;
+        private readonly Mode _mode = Mode.Normal;
         private string? _passcode;
         private bool _hasCreated;
-        private bool _hasUpdated;
 
         public bool IsAccessible { get; set; }
 
@@ -53,7 +53,6 @@ namespace WPass
             Setup();
 
             _hasCreated = false;
-            _hasUpdated = false;
         }
 
         private void Setup()
@@ -61,6 +60,7 @@ namespace WPass
             ContainerOldCode.Visibility = Visibility.Collapsed;
             ContainerCode.Visibility = Visibility.Collapsed;
             ContainerReCode.Visibility = Visibility.Collapsed;
+            ButtonForget.Visibility = Visibility.Collapsed;
 
             switch (_mode)
             {
@@ -69,6 +69,8 @@ namespace WPass
                     // 1 button: access
                     // 1 label: enter code to access
                     ContainerCode.Visibility = Visibility.Visible;
+                    ButtonForget.Visibility = Visibility.Visible;
+                    ButtonForget.Click += ButtonForget_Click;
                     ButtonOne.Content = "Access";
                     ButtonOne.Click += Access;
                     LabelInfo.Content = "Enter code to access";
@@ -97,6 +99,11 @@ namespace WPass
                 default:
                     break;
             }
+        }
+
+        private async void ButtonForget_Click(object sender, RoutedEventArgs e)
+        {
+            await PasscodeManager.ResetAsync();
         }
 
         private async void Access(object sender, RoutedEventArgs e)
@@ -240,7 +247,7 @@ namespace WPass
             }
         }
 
-        private async Task<string> FetchPersonalCodeAsync()
+        private static async Task<string> FetchPersonalCodeAsync()
         {
             await Task.Delay(1000);
             using var context = new WPContext();
@@ -263,7 +270,6 @@ namespace WPass
             {
                 setting.Value = Security.Encrypt(pass);
                 context.Settings.Update(setting);
-                _hasUpdated = true;
             }
             else // create
             {
@@ -279,59 +285,13 @@ namespace WPass
             await context.SaveChangesAsync();
         }
 
-        //private async void AccessCode_TextChanged(object sender, TextChangedEventArgs e)
-        //{
-        //    ReflectUI();
-
-        //    // Valid code
-        //    if (AccessCode.Text.Length == 6)
-        //    {
-        //        if (AccessCode.Text.Equals(_passcode))
-        //        {
-        //            IsAccessible = true;
-        //            LabelInfo.Foreground = Brushes.Green;
-        //            LabelInfo.Content = "Success !";
-        //            new MainWindow().Show();
-        //            Close();
-        //        }
-        //        else
-        //        {
-        //            IsAccessible = false;
-        //            LabelInfo.Foreground = Brushes.Red;
-        //            LabelInfo.Content = "Wrong code. Please try again !";
-        //            await Task.Delay(500);
-        //            AccessCode.Clear();
-        //        }
-        //    }
-        //}
-
-        //private void ReflectUI()
-        //{
-        //    // Reflect on UI
-        //    for (int i = 0; i < 6; i++)
-        //    {
-        //        if (CodeField.Children[i] is Ellipse ell)
-        //        {
-        //            if (i < AccessCode.Text.Length)
-        //            {
-        //                ell.Fill = Brushes.Black;
-        //            }
-        //            else
-        //            {
-        //                ell.Fill = Brushes.Transparent;
-        //            }
-
-        //        }
-        //    }
-        //}
-
         protected override void OnClosing(CancelEventArgs e)
         {
             if (!_hasCreated && _mode.Equals(Mode.Create))
             {
                 // user close without creating new passcode
                 MessageBox.Show("Passcode is not created. Please create one before using.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                Application.Current.Shutdown();
             }
 
             base.OnClosing(e);
@@ -387,6 +347,21 @@ namespace WPass
             {
                 ButtonOne.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
             }
+        }
+
+        private void ContainerOldCode_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PasswordBoxOldCode.Focus();
+        }
+
+        private void ContainerCode_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PasswordBoxCode.Focus();
+        }
+
+        private void ContainerReCode_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            PasswordBoxReCode.Focus();
         }
     }
 }

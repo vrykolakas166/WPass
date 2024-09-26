@@ -40,7 +40,8 @@
                                 Foreground="White"
                                 Command="{Binding UpdatePasscodeCommand}">Update</Button>
                         <Button Grid.Column="1"
-                                Background="IndianRed">Reset</Button>
+                                Background="IndianRed"
+                                Command="{Binding ResetPasscodeCommand}">Reset</Button>
                     </Grid>
                 </GroupBox>
                 <GroupBox>
@@ -59,7 +60,7 @@
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Grid.Row="0"
-                                       VerticalAlignment="Center">Auto fill credentials</TextBlock>
+                                       VerticalAlignment="Center">Fill data</TextBlock>
                             <Button x:Name="ButtonChangeHotkey_FillData" 
                                     Grid.Column="1" Grid.Row="0"
                                     Content="{Binding HotkeyFill, UpdateSourceTrigger=PropertyChanged}"
@@ -67,7 +68,7 @@
                             <TextBlock Grid.Column="0" Grid.Row="1"
                                        VerticalAlignment="Center">
                                 <StackPanel>
-                                    <TextBlock>Auto clear credentials</TextBlock>
+                                    <TextBlock>Clear data</TextBlock>
                                     <TextBlock FontSize="8"
                                                FontStyle="Italic"
                                                Foreground="Gray">This can be used in Edge only</TextBlock>

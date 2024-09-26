@@ -13,7 +13,7 @@
         <ResourceDictionary>
             <Storyboard x:Key="GettingSmaller">
                 <DoubleAnimationUsingKeyFrames Storyboard.TargetName="image" Storyboard.TargetProperty="(FrameworkElement.Width)">
-                    <EasingDoubleKeyFrame KeyTime="00:00:01" Value="250"/>
+                    <EasingDoubleKeyFrame KeyTime="00:00:01" Value="150"/>
                 </DoubleAnimationUsingKeyFrames>
             </Storyboard>
             <Storyboard x:Key="ShowUp">
@@ -30,7 +30,10 @@
     </Window.Resources>
     <DockPanel x:Name="FocusZone" MouseLeftButtonDown="FocusZone_MouseLeftButtonDown">
         <DockPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Image x:Name="image" DockPanel.Dock="Top" Source="/Resources/thumnail_wpass.png" Width="350">
+            <Image x:Name="image" 
+                   DockPanel.Dock="Top" 
+                   Source="/Resources/thumnail_wpass.png"
+                   Width="250">
                 <Image.Triggers>
                     <EventTrigger RoutedEvent="Window.Loaded">
                         <BeginStoryboard Storyboard="{StaticResource GettingSmaller}" />
@@ -42,17 +45,12 @@
                         Orientation="Vertical" 
                         HorizontalAlignment="Center"
                         MouseLeftButtonDown="FocusZone_MouseLeftButtonDown">
-                <!--<Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>
-                <Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>
-                <Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>
-                <Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>
-                <Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>
-                <Ellipse Height="30" Width="30" StrokeThickness="3" Stroke="Black"  Fill="Transparent"/>-->
                 <Border x:Name="ContainerOldCode"
                         CornerRadius="10"
                         BorderBrush="LightSkyBlue"
                         BorderThickness="2"
-                        Margin="0 5">
+                        Margin="0 5"
+                        MouseLeftButtonDown="ContainerOldCode_MouseLeftButtonDown">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10"
                                           ShadowDepth="3" 
@@ -81,7 +79,8 @@
                         CornerRadius="10"
                         BorderBrush="LightSkyBlue"
                         BorderThickness="2"
-                        Margin="0 5">
+                        Margin="0 5"
+                        MouseLeftButtonDown="ContainerCode_MouseLeftButtonDown">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10"
                                           ShadowDepth="3" 
@@ -110,7 +109,8 @@
                         CornerRadius="10"
                         BorderBrush="LightSkyBlue"
                         BorderThickness="2"
-                        Margin="0 5">
+                        Margin="0 5"
+                        MouseLeftButtonDown="ContainerReCode_MouseLeftButtonDown">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="10"
                           ShadowDepth="3" 
@@ -127,7 +127,7 @@
                                      BorderThickness="0"
                                      GotFocus="PasswordBoxReCode_GotFocus"
                                      LostFocus="PasswordBoxReCode_LostFocus"
-                                     KeyDown="PasswordBox_KeyDown"/>  
+                                     KeyDown="PasswordBox_KeyDown"/>
                         <TextBlock x:Name="PasswordBoxReCodePlaceHolder"
                                    Text="Re-Passcode"
                                    Margin="10 3"
@@ -135,6 +135,15 @@
                                    VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
+                <Button x:Name="ButtonForget"
+                        Style="{StaticResource EmptyButton}"
+                        Margin="0"
+                        Width="100">
+                    <TextBlock Text="Forget password?"
+                               FontStyle="Italic"
+                               FontSize="9"
+                               TextDecorations="Underline" />
+                </Button>
                 <Border CornerRadius="6"
                         Background="LightSkyBlue"
                         Width="80"
@@ -170,9 +179,6 @@
                     </EventTrigger>
                 </Label.Triggers>
             </Label>
-            <!--<TextBox x:Name="AccessCode" DockPanel.Dock="Bottom" 
-                 Opacity="0" TextChanged="AccessCode_TextChanged"
-                 MaxLength="6"/>-->
         </DockPanel>
     </DockPanel>
 </Window>

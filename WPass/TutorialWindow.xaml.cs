@@ -15,6 +15,7 @@ namespace WPass
     {
         private const double ANIMATED_TIME = 0.75;
         private Ellipse _currentDot;
+        private readonly int _numberOfDot = 4;
         private static DateTime _lastExecutedTimes = DateTime.MinValue; // Store the last execution time for debouncing
         private static readonly TimeSpan _debounceInterval = TimeSpan.FromSeconds(ANIMATED_TIME); // Debounce interval
 
@@ -62,11 +63,11 @@ namespace WPass
                         _currentDot = ell;
                     }
 
-                    if (rs < 3)
+                    if (rs < _numberOfDot)
                     {
                         ButtonNext.Content = "Next";
                     }
-                    else if (rs == 3)
+                    else if (rs == _numberOfDot)
                     {
                         ButtonNext.Content = "Finish";
                     }
@@ -118,7 +119,7 @@ namespace WPass
             }
 
             var currentIndex = int.Parse(_currentDot.Tag.ToString() ?? "0");
-            if (currentIndex < 3)
+            if (currentIndex < _numberOfDot)
             {
                 var ind = currentIndex + 1;
                 switch (ind)
@@ -134,6 +135,9 @@ namespace WPass
                         break;
                     case 3:
                         GoToView(Dot3);
+                        break;
+                    case 4:
+                        GoToView(Dot4);
                         break;
                 }
             }

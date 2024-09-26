@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         x:Name="TWindow" 
         Title="Guide" 
-        Height="400" Width="400"
+        Height="500" Width="500"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
@@ -66,6 +66,7 @@
                     <Ellipse x:Name="Dot1" Fill="Transparent" Stroke="LightSkyBlue" Tag="1"/>
                     <Ellipse x:Name="Dot2" Fill="Transparent" Stroke="LightSkyBlue" Tag="2"/>
                     <Ellipse x:Name="Dot3" Fill="Transparent" Stroke="LightSkyBlue" Tag="3"/>
+                    <Ellipse x:Name="Dot4" Fill="Transparent" Stroke="LightSkyBlue" Tag="4"/>
                     <StackPanel.Resources>
                         <Style TargetType="Ellipse">
                             <Setter Property="Width" Value="16" />
@@ -82,7 +83,7 @@
                               Focusable="False">
                     <StackPanel Orientation="Horizontal">
                         <Grid x:Name="view0">
-                            <StackPanel>
+                            <StackPanel Style="{DynamicResource StackPanelView}">
                                 <TextBlock FontSize="20"
                                            FontWeight="SemiBold">
                                     Before you start
@@ -99,8 +100,29 @@
                                        Margin="0 20" />
                             </StackPanel>
                         </Grid>
+                        <Grid x:Name="view">
+                            <StackPanel Style="{DynamicResource StackPanelView}">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock FontSize="20"
+                                               FontWeight="SemiBold">
+                                        YOU MUST SET PASSCODE BEFORE USING APP
+                                    </TextBlock>
+                                    <TextBlock FontSize="14">
+                                        Enter passcode and re-enter it then you are good to go !
+                                    </TextBlock>
+                                </StackPanel>
+                                <Separator />
+                                <TextBlock FontSize="14"
+                                           Foreground="Green">
+                                    In case you forget passcode, there are 2 ways to recover:
+                                </TextBlock>
+                                <TextBlock FontSize="14" Text="+ First way: You can select &quot;Forget password?&quot; in Login screen" />
+                                <TextBlock FontSize="14" Text="+ Second way: If the app is running, you can go to Setting -> Passcode -> Reset" />
+                                <TextBlock FontSize="16" Foreground="Red" Text="IMPORTANT: To ensure it is really you, please enter your Windows credentials to proceed with this operation." />
+                            </StackPanel>
+                        </Grid>
                         <Grid x:Name="view1">
-                            <StackPanel>
+                            <StackPanel Style="{DynamicResource StackPanelView}">
                                 <TextBlock FontSize="20"
                                            FontWeight="SemiBold">
                                     Adding credentials
@@ -112,7 +134,7 @@
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view2">
-                            <StackPanel>
+                            <StackPanel Style="{DynamicResource StackPanelView}">
                                 <TextBlock FontSize="20"
                                            FontWeight="SemiBold">
                                     Adding credentials
@@ -124,11 +146,12 @@
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view3">
-                            <StackPanel>
+                            <StackPanel Style="{DynamicResource StackPanelView}">
                                 <TextBlock FontSize="20"
                                            FontWeight="SemiBold">
                                     Using hotkeys
                                 </TextBlock>
+                                <Separator />
                                 <TextBlock FontSize="14">
                                     Fill data
                                 </TextBlock>
@@ -136,26 +159,32 @@
                                     + Open website on browser
                                 </TextBlock>
                                 <TextBlock>
-                                    + You can press Ctrl + ` to fill username, password
+                                    + You can press Ctrl + ` to auto fill username, password
                                 </TextBlock>
                                 <TextBlock>
                                     + Or change hotkeys in Setting
                                 </TextBlock>
                                 <TextBlock FontSize="14">
-                                    Clear data
+                                    Clear data (Only available in Egde browser)
                                 </TextBlock>
                                 <TextBlock>
-                                    + You can press Ctrl + Q to clear credential fields on current website
+                                    + You can press Ctrl + Q to clear entered username, password
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
                         <StackPanel.Resources>
                             <Style TargetType="Grid">
-                                <Setter Property="Width" Value="300" />
-                                <Setter Property="Height" Value="300" />
+                                <Setter Property="Width" Value="400" />
+                                <Setter Property="Height" Value="400" />
                                 <Setter Property="VerticalAlignment" Value="Center" />
                                 <Setter Property="HorizontalAlignment" Value="Center" />
                                 <Setter Property="Margin" Value="20 10" />
+                            </Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                            </Style>
+                            <Style TargetType="StackPanel" x:Key="StackPanelView">
+                                <Setter Property="Margin" Value="0 30"/>
                             </Style>
                         </StackPanel.Resources>
                     </StackPanel>

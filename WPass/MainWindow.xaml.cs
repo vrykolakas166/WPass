@@ -38,6 +38,11 @@ namespace WPass
             MessageBox.Show(this, "Copyright© 2024. All rights reserved.", "About WPass");
         }
 
+        private void ShowTutorial_Click(object sender, RoutedEventArgs e)
+        {
+            new TutorialWindow().ShowDialog();
+        }
+
         private void ButtonClearSearch_Click(object sender, RoutedEventArgs e)
         {
             if (vm != null)

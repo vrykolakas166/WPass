@@ -64,9 +64,14 @@
                 </MenuItem>
                 <MenuItem Header="Setting" 
                           Command="{Binding OpenSettingCommand}"/>
-                <MenuItem x:Name="ShowAbout" 
-                          Header="About" 
-                          Click="ShowAbout_Click"/>
+                <MenuItem Header="Help">
+                    <MenuItem x:Name="ShowTutorial" 
+                              Header="Guide" 
+                              Click="ShowTutorial_Click"/>
+                    <MenuItem x:Name="ShowAbout" 
+                              Header="About" 
+                              Click="ShowAbout_Click"/>
+                </MenuItem>
             </Menu>
             <Grid>
                 <Button Command="{Binding AddOrUpdateEntryCommand}"

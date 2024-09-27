@@ -1,6 +1,6 @@
 ﻿namespace WPass.Utility.OtherHandler
 {
-    public static class Logger
+    public class Logger
     {
         public static void Write(string info, string logFileName = "")
         {

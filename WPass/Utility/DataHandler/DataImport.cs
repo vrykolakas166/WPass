@@ -5,7 +5,7 @@ using WPass.Utility.SecurityHandler;
 
 namespace WPass.Utility.DataHandler
 {
-    public static class DataImport
+    public class DataImport
     {
         // Microsoft Edge profile
         // name,url,username,password,note
@@ -66,6 +66,8 @@ namespace WPass.Utility.DataHandler
                             websites.Add(newWebsite);
                         }
                     }
+
+                    return (entries, websites);
                 }
             }
             catch (Exception ex)
@@ -73,10 +75,12 @@ namespace WPass.Utility.DataHandler
                 // log err
                 Logger.Write(ex.Message);
             }
+            finally
+            {
+                temp.Clear();
+            }
 
-            return (entries, websites);
+            return ([], []);
         }
-
-
     }
 }

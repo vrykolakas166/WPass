@@ -2,39 +2,44 @@
 
 namespace WPass.Utility.HotkeyHandler
 {
-    public static class KeyCollector
+    public class KeyCollector : IDisposable
     {
-        public static Key NonModifierKey { get; set; } = Key.None;
-        public static bool IsCtrlPressed { get; set; } = false;
-        public static bool IsAltPressed { get; set; } = false;
+        private Key NonModifierKey = Key.None;
+
+        // Changed to a dictionary to manage Ctrl and Alt
+        public readonly Dictionary<Key, bool> Modifiers = new()
+        {
+            { Key.LeftCtrl, false },
+            { Key.RightCtrl, false },
+            { Key.LeftAlt, false },
+            { Key.RightAlt, false }
+        };
 
         /// <summary>
         /// Reset default
         /// </summary>
-        public static void Reset()
+        public void Reset()
         {
             NonModifierKey = Key.None;
-            IsCtrlPressed = false;
-            IsAltPressed = false;
+            foreach (var key in Modifiers.Keys.ToList())
+            {
+                Modifiers[key] = false;
+            }
         }
 
         /// <summary>
         /// Capture pressed keys
         /// </summary>
         /// <param name="k"></param>
-        public static bool Capture(Key k)
+        public bool Capture(Key k)
         {
             // Check for modifiers
-            if (k == Key.LeftCtrl || k == Key.RightCtrl)
+            if (Modifiers.ContainsKey(k)) // check ctrl press first
             {
-                IsCtrlPressed = true;
-            }
-            else if (k == Key.LeftAlt || k == Key.RightAlt)
-            {
-                IsAltPressed = true;
+                Modifiers[k] = true; // Set the corresponding modifier key to true
             }
             // Handle non-modifier key
-            else if (!IsModifierKey(k))
+            else if (!IsModifierKey(k) && Modifiers.ContainsValue(true))
             {
                 NonModifierKey = k;
                 return true;
@@ -47,19 +52,15 @@ namespace WPass.Utility.HotkeyHandler
         /// Clear pressed keys when they were released
         /// </summary>
         /// <param name="k"></param>
-        public static void Release(Key k)
+        public void Release(Key k)
         {
             // Check for modifiers
-            if (k == Key.LeftCtrl || k == Key.RightCtrl)
+            if (Modifiers.ContainsKey(k))
             {
-                IsCtrlPressed = false;
-            }
-            else if (k == Key.LeftAlt || k == Key.RightAlt)
-            {
-                IsAltPressed = false;
+                Modifiers[k] = false;
             }
             // Handle non-modifier key
-            if (!IsModifierKey(k))
+            else if (!IsModifierKey(k))
             {
                 NonModifierKey = Key.None;
             }
@@ -70,14 +71,14 @@ namespace WPass.Utility.HotkeyHandler
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
-        public static string GetCombination(KeyEventArgs e)
+        public string GetCombination(KeyEventArgs e)
         {
             string hotkeyText = "";
 
-            if (IsCtrlPressed)
+            if (Modifiers[Key.LeftCtrl] || Modifiers[Key.RightCtrl])
                 hotkeyText += "Ctrl + ";
 
-            if (IsAltPressed)
+            if (Modifiers[Key.LeftAlt] || Modifiers[Key.RightAlt])
                 hotkeyText += "Alt + ";
 
             if (NonModifierKey != Key.None)
@@ -91,7 +92,7 @@ namespace WPass.Utility.HotkeyHandler
         /// </summary>
         /// <param name="character"></param>
         /// <returns></returns>
-        public static Key? ConvertCharToKey(string character)
+        public Key? ConvertCharToKey(string character)
         {
             if (_charToKeyMap.TryGetValue(character, out Key key))
             {
@@ -149,7 +150,7 @@ namespace WPass.Utility.HotkeyHandler
         /// <summary>
         /// Dictionary to map characters to Key values
         /// </summary>
-        private static readonly Dictionary<string, Key> _charToKeyMap = BuildCharToKeyMap();
+        private readonly Dictionary<string, Key> _charToKeyMap = BuildCharToKeyMap();
 
         /// <summary>
         /// Method to build the dictionary using ConvertKeyToChar logic
@@ -187,12 +188,17 @@ namespace WPass.Utility.HotkeyHandler
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        private static bool IsModifierKey(Key key)
+        public static bool IsModifierKey(Key key)
         {
             return key == Key.LeftCtrl || key == Key.RightCtrl ||
                    key == Key.LeftAlt || key == Key.RightAlt ||
                    key == Key.LeftShift || key == Key.RightShift ||
                    key == Key.LWin || key == Key.RWin;
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
         }
 
         #endregion

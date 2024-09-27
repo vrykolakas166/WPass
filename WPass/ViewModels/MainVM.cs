@@ -19,9 +19,7 @@ namespace WPass.ViewModels
     {
         private static Window? _mainWindow;
         private static List<Tuple<string, string>> _stringSumList = [];
-
-        public static int HOTKEY_FILL_DATA { get; set; }
-        public static int HOTKEY_CLEAR_DATA { get; set; }
+        private static readonly KeyCollector _keyCollector = new();
 
         private bool _notifyIconVisible;
         public bool NotifyIconVisible
@@ -78,6 +76,17 @@ namespace WPass.ViewModels
             }
         }
 
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
+        }
+
         private int _totalEntries;
         public int TotalEntries
         {
@@ -105,6 +114,7 @@ namespace WPass.ViewModels
 
         public MainVM()
         {
+            IsLoading = false;
             GlobalSession.EntryDtos = [];
 
             _filteredSearchValue = string.Empty;
@@ -213,7 +223,7 @@ namespace WPass.ViewModels
                 {
                     if (MessageBox.Show(_mainWindow, "Are you sure to delete all selected entries?", "Entries", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        var context = new WPContext();
+                        using var context = new WPContext();
                         foreach (var entry in Entries)
                         {
                             if (entry.IsSelected)
@@ -250,17 +260,19 @@ namespace WPass.ViewModels
 
         private async Task ImportFile()
         {
+            System.Windows.Forms.OpenFileDialog dialog = new()
+            {
+                Filter = "Data|*.csv",
+                Multiselect = false,
+            };
+            IsLoading = true;
+
             try
             {
-                System.Windows.Forms.OpenFileDialog dialog = new()
-                {
-                    Filter = "Data|*.csv",
-                    Multiselect = false,
-                };
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     var (entries, websites) = await DataImport.ReadCSV(dialog.FileName);
-                    WPContext context = new();
+                    using WPContext context = new();
                     var oldEntries = await context.Entries.ToListAsync();
                     var oldWebsites = await context.Websites.ToListAsync();
                     if (entries.Count > 0)
@@ -327,6 +339,11 @@ namespace WPass.ViewModels
                 MessageBox.Show("Something's wrong. Please contact dev :)", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Logger.Write(ex.Message);
             }
+            finally
+            {
+                IsLoading = false;
+                dialog.Dispose();
+            }
         }
 
         private static void OpenSetting()
@@ -365,7 +382,7 @@ namespace WPass.ViewModels
         public static void Initialize(Window window)
         {
             _mainWindow = window;
-            WPContext context = new();
+            using WPContext context = new();
             var settings = context.Settings.ToList();
             {
                 foreach (var setting in settings)
@@ -376,22 +393,22 @@ namespace WPass.ViewModels
                             var tempArr = setting.Value.Split(" + ");
                             if (tempArr.Length == 2)
                             {
-                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Oem3, () => CredentialManager.SetData());
+                                KeyListenner.Register(window, ModifierKeys.Control, _keyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Oem3, () => CredentialManager.SetData());
                             }
                             else if (tempArr.Length == 3)
                             {
-                                HOTKEY_FILL_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Oem3, () => CredentialManager.SetData());
+                                KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, _keyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Oem3, () => CredentialManager.SetData());
                             }
                             break;
                         case Constant.Setting.HOTKEY_CLEAR_DATA: // clear
                             tempArr = setting.Value.Split(" + ");
                             if (tempArr.Length == 2)
                             {
-                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control, KeyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Q, () => CredentialManager.SetData(true));
+                                KeyListenner.Register(window, ModifierKeys.Control, _keyCollector.ConvertCharToKey(tempArr[1]) ?? Key.Q, () => CredentialManager.SetData(true));
                             }
                             else if (tempArr.Length == 3)
                             {
-                                HOTKEY_CLEAR_DATA = KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, KeyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Q, () => CredentialManager.SetData(true));
+                                KeyListenner.Register(window, ModifierKeys.Control | ModifierKeys.Alt, _keyCollector.ConvertCharToKey(tempArr[2]) ?? Key.Q, () => CredentialManager.SetData(true));
                             }
                             break;
                         default:
@@ -409,70 +426,83 @@ namespace WPass.ViewModels
 
         public async Task LoadData(bool isFilter = false)
         {
-            bool notFound = true;
-            var context = new WPContext();
-            Entries.Clear();
-            if (!isFilter)
+            IsLoading = true;
+            try
             {
-                GlobalSession.EntryDtos.Clear();
-                _stringSumList = [];
-            }
-
-            var entries = await context.Entries
-                .Include(e => e.Websites)
-                .OrderByDescending(e => e.CreatedAt)
-                .ToListAsync();
-
-            foreach (var entry in entries)
-            {
-                var item = EntryDto.MapFrom(entry);
-                if (item.IsDefault)
+                bool notFound = true;
+                using var context = new WPContext();
+                Entries.Clear();
+                if (!isFilter)
                 {
-                    GlobalSession.DefaultEntry = item;
-                    Entries.Insert(0, item);
-                    GlobalSession.EntryDtos.Insert(0, item);
-                    notFound = false;
+                    GlobalSession.EntryDtos.Clear();
+                    _stringSumList = [];
                 }
-                else
-                {
-                    Entries.Add(item);
-                    GlobalSession.EntryDtos.Add(item);
-                }
-            }
 
-            // no item map default, mean it was deleted, remove default and try to add first item in last list
-            if (notFound)
-            {
-                var firstAdded = Entries.FirstOrDefault();
-                if (firstAdded != null)
-                {
-                    var item = await context.Entries.FirstAsync(e => e.Id.Equals(firstAdded.Id));
-                    item.IsDefault = true;
-                    context.Entries.Update(item);
-                    await context.SaveChangesAsync();
-                    Entries[0].IsDefault = true;
-                    GlobalSession.EntryDtos[0].IsDefault = true;
-                    GlobalSession.DefaultEntry = EntryDto.MapFrom(item);
-                }
-                else // empty
-                {
-                    GlobalSession.DefaultEntry = null;
-                }
-            }
+                var entries = await context.Entries
+                    .Include(e => e.Websites)
+                    .OrderByDescending(e => e.CreatedAt)
+                    .ToListAsync();
 
-            TotalEntries = Entries.Count;
-
-            // get summary string to for filter search function
-            foreach (var item in GlobalSession.EntryDtos)
-            {
-                _stringSumList.Add(new Tuple<string, string>(item.Id, item.Username));
-                if (item.Websites.Any())
+                foreach (var entry in entries)
                 {
-                    foreach (var web in item.Websites)
+                    var item = EntryDto.MapFrom(entry);
+                    if (item.IsDefault)
                     {
-                        _stringSumList.Add(new Tuple<string, string>(item.Id, web.Url));
+                        GlobalSession.DefaultEntry = item;
+                        Entries.Insert(0, item);
+                        GlobalSession.EntryDtos.Insert(0, item);
+                        notFound = false;
+                    }
+                    else
+                    {
+                        Entries.Add(item);
+                        GlobalSession.EntryDtos.Add(item);
                     }
                 }
+
+                // no item map default, mean it was deleted, remove default and try to add first item in last list
+                if (notFound)
+                {
+                    var firstAdded = Entries.FirstOrDefault();
+                    if (firstAdded != null)
+                    {
+                        var item = await context.Entries.FirstAsync(e => e.Id.Equals(firstAdded.Id));
+                        item.IsDefault = true;
+                        context.Entries.Update(item);
+                        await context.SaveChangesAsync();
+                        Entries[0].IsDefault = true;
+                        GlobalSession.EntryDtos[0].IsDefault = true;
+                        GlobalSession.DefaultEntry = EntryDto.MapFrom(item);
+                    }
+                    else // empty
+                    {
+                        GlobalSession.DefaultEntry = null;
+                    }
+                }
+
+                TotalEntries = Entries.Count;
+
+                // get summary string to for filter search function
+                foreach (var item in GlobalSession.EntryDtos)
+                {
+                    _stringSumList.Add(new Tuple<string, string>(item.Id, item.Username));
+                    if (item.Websites.Any())
+                    {
+                        foreach (var web in item.Websites)
+                        {
+                            _stringSumList.Add(new Tuple<string, string>(item.Id, web.Url));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Something's wrong. Please contact developer.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.Write(ex.Message);
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -496,7 +526,7 @@ namespace WPass.ViewModels
         {
             if (MessageBox.Show(_mainWindow, "Are you sure to delete this?", "Entry", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                var context = new WPContext();
+                using var context = new WPContext();
                 var deletedEntry = await context.Entries.FindAsync(id);
                 if (deletedEntry != null)
                 {

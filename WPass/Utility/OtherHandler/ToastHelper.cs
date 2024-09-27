@@ -10,18 +10,9 @@ namespace WPass.Utility.OtherHandler
             var toastContent = new ToastContentBuilder()
                 .AddText(title)
                 .AddText(content);
-            //.GetToastContent();
 
             // Show the toast
             toastContent.Show();
-
-
-            //var toastNotification = new ToastNotification(toastContent.GetXml())
-            //{
-            //    ExpirationTime = DateTime.Now.AddSeconds(3),
-            //};
-
-            //ToastNotificationManager.CreateToastNotifier().Show(toastNotification);
         }
     }
 }

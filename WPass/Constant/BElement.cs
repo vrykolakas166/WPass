@@ -1,6 +1,6 @@
 ﻿namespace WPass.Constant
 {
-    public static class BElement
+    public class BElement
     {
         public const string DEFAULT_JSON = @"[
                                               { ""Name"": ""Account"" },

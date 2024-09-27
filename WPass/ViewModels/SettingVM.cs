@@ -8,6 +8,8 @@ using WPass.Constant;
 using WPass.Core;
 using WPass.Core.Model;
 using WPass.Utility;
+using WPass.Utility.OtherHandler;
+using WPass.Utility.WindowHandler;
 
 namespace WPass.ViewModels
 {
@@ -108,94 +110,136 @@ namespace WPass.ViewModels
 
         private void Reset(Window w)
         {
-            BrowserElementsString = string.Join("; ", JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON)?.Select(e => e.Name) ?? []);
-
-            HotkeyFill = "Ctrl + `";
-            if (w.FindName("ButtonChangeHotkey_FillData") is Button b1)
+            try
             {
-                b1.Content = HotkeyFill;
-            }
+                BrowserElementsString = string.Join("; ", JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON)?.Select(e => e.Name) ?? []);
 
-            HotkeyClear = "Ctrl + Q";
-            if (w.FindName("ButtonChangeHotkey_ClearData") is Button b2)
+                HotkeyFill = "Ctrl + `";
+                if (w.FindName("ButtonChangeHotkey_FillData") is Button b1)
+                {
+                    b1.Content = HotkeyFill;
+                }
+
+                HotkeyClear = "Ctrl + Q";
+                if (w.FindName("ButtonChangeHotkey_ClearData") is Button b2)
+                {
+                    b2.Content = HotkeyClear;
+                }
+
+                HideOnClose = false;
+                WindowStartup = false;
+            }
+            catch (Exception ex)
             {
-                b2.Content = HotkeyClear;
+                MessageBox.Show("Something's wrong. Please check log.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.Write(ex.Message);
             }
-
-            HideOnClose = false;
-            WindowStartup = false;
         }
 
-        private bool CanSave()
+        public bool CanSave()
         {
             return _lastSavedData != GetChangedDataSignal();
         }
 
         private async Task Save(Window w)
         {
-            WPContext context = new();
-            var oldbe = await context.BrowserElements.ToListAsync();
-            var browserElements = BEStringToList(BrowserElementsString);
-            var settings = await context.Settings
-                .OrderBy(setting => setting.Key)
-                .ToListAsync();
-
-            foreach (var be in oldbe)
-            {
-                context.BrowserElements.Remove(be);
-            }
-
+            List<BrowserElement>? oldbe;
+            string? oldFill;
+            string? oldClear;
+            List<BrowserElement>? browserElements;
+            List<Core.Model.Setting>? settings;
             var defaultBrowserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
-            foreach (var item in defaultBrowserElements)
-            {
-                var check = context.BrowserElements.Find(item.Name);
-                if (check == null)
-                {
-                    await context.BrowserElements.AddAsync(item);
-                }
-            }
 
-            foreach (var browserElement in browserElements)
+            try
             {
-                if (!defaultBrowserElements.Any(dbe => dbe.Name.Equals(browserElement.Name)))
-                {
-                    await context.BrowserElements.AddAsync(new BrowserElement() { Name = browserElement.Name });
-                }
-            }
+                using WPContext context = new();
+                oldbe = await context.BrowserElements.ToListAsync();
+                oldFill = context.Settings.First(s => s.Key.Equals(Constant.Setting.HOTKEY_FILL_DATA)).Value;
+                oldClear = context.Settings.First(s => s.Key.Equals(Constant.Setting.HOTKEY_CLEAR_DATA)).Value;
 
-            for (var i = 0; i < settings.Count; i++)
+                browserElements = BEStringToList(BrowserElementsString);
+                settings = await context.Settings
+                    .OrderBy(setting => setting.Key)
+                    .ToListAsync();
+
+                context.BrowserElements.RemoveRange(oldbe);
+
+                foreach (var item in defaultBrowserElements)
+                {
+                    var check = context.BrowserElements.Find(item.Name);
+                    if (check == null)
+                    {
+                        await context.BrowserElements.AddAsync(item);
+                    }
+                }
+
+                foreach (var browserElement in browserElements)
+                {
+                    if (!defaultBrowserElements.Any(dbe => dbe.Name.Equals(browserElement.Name)))
+                    {
+                        await context.BrowserElements.AddAsync(new BrowserElement() { Name = browserElement.Name });
+                    }
+                }
+
+                for (var i = 0; i < settings.Count; i++)
+                {
+                    var setting = settings[i];
+                    switch (setting.Key)
+                    {
+                        case Constant.Setting.HOTKEY_FILL_DATA:
+                            setting.Value = HotkeyFill.ToString();
+                            break;
+                        case Constant.Setting.HOTKEY_CLEAR_DATA:
+                            setting.Value = HotkeyClear.ToString();
+                            break;
+                        case Constant.Setting.HIDE_ON_CLOSE:
+                            setting.Value = HideOnClose.ToString().ToLower();
+                            break;
+                        case Constant.Setting.WINDOW_STARTUP:
+                            setting.Value = WindowStartup.ToString().ToLower();
+                            break;
+                        default:
+                            break;
+                    }
+                    context.Settings.Update(setting);
+                }
+
+                await context.SaveChangesAsync();
+                LoadData();
+
+                // Check if hotkeys change
+                // Ask to restart
+                if (oldFill != HotkeyFill || oldClear != HotkeyClear)
+                {
+                    if (MessageBox.Show("Hotkeys are changed, do you want to restart now ?", "Changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        TriggerHelper.RestartCurrentApplication();
+                    }
+                }
+
+                w?.Close();
+            }
+            catch (Exception ex)
             {
-                var setting = settings[i];
-                switch (setting.Key)
-                {
-                    case Constant.Setting.HOTKEY_FILL_DATA:
-                        setting.Value = HotkeyFill.ToString();
-                        break;
-                    case Constant.Setting.HOTKEY_CLEAR_DATA:
-                        setting.Value = HotkeyClear.ToString();
-                        break;
-                    case Constant.Setting.HIDE_ON_CLOSE:
-                        setting.Value = HideOnClose.ToString().ToLower();
-                        break;
-                    case Constant.Setting.WINDOW_STARTUP:
-                        setting.Value = WindowStartup.ToString().ToLower();
-                        break;
-                    default:
-                        break;
-                }
-                context.Settings.Update(setting);
+                MessageBox.Show("Something's wrong. Please check log.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Logger.Write(ex.Message);
             }
-
-            await context.SaveChangesAsync();
-            LoadData();
-            w?.Close();
+            finally
+            {
+                oldbe = null;
+                oldFill = null;
+                oldClear = null;
+                browserElements = null;
+                settings = null;
+                defaultBrowserElements = null;
+            }
         }
 
         private void LoadData()
         {
             _lastSavedData = string.Empty;
 
-            WPContext context = new();
+            using WPContext context = new();
 
             var browserElements = context.BrowserElements.ToList();
             GlobalSession.BrowserElements = browserElements; // saved to session

@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:WPass"
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:vm="clr-namespace:WPass.ViewModels"
+        xmlns:uc="clr-namespace:WPass.UC"
         xmlns:converter="clr-namespace:ViewModels.Converter"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
@@ -188,69 +189,73 @@
                     </StackPanel>
                 </Button>
             </Grid>
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          MaxHeight="350">
-                <!-- ItemsControl to Display items -->
-                <ItemsControl ItemsSource="{Binding Entries}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="5"
-                                    Padding="5"
-                                    BorderThickness="1"
-                                    BorderBrush="Black"
-                                    CornerRadius="1">
-                                <StackPanel>
-                                    <StackPanel.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Set as defaut entry" 
-                                                      Command="{Binding SetDefaultEntryCommand, Source={StaticResource mainVm}}"
-                                                      CommandParameter="{Binding Id}"/>
-                                        </ContextMenu>
-                                    </StackPanel.ContextMenu>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition />
-                                            <ColumnDefinition />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock>Username</TextBlock>
-                                            <TextBox IsReadOnly="True" 
-                                                     Text="{Binding Username}"/>
-                                        </StackPanel>
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock>Password</TextBlock>
-                                            <PasswordBox Password="************"
-                                                         IsEnabled="False"/>
-                                        </StackPanel>
-                                    </Grid>
-                                    <Grid Margin="0 5">
-                                        <Button Background="Black"
-                                                Foreground="White"
-                                                Width="100"
-                                                HorizontalAlignment="Left"
-                                                Command="{Binding AddOrUpdateEntryCommand, Source={StaticResource mainVm}}"
-                                                CommandParameter="{Binding Id}">Detail</Button>
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="Gray"
-                                                   Visibility="{Binding IsDefault, Converter={StaticResource visibilityConverter}}"
-                                                   Text="- Default -" />
-                                        <Button Background="Salmon"
-                                                Width="100"
-                                                HorizontalAlignment="Right"
-                                                Command="{Binding RemoveEntryCommand, Source={StaticResource mainVm}}"
-                                                CommandParameter="{Binding Id}">Remove</Button>
-                                        <CheckBox HorizontalAlignment="Right"
-                                                  VerticalAlignment="Center"
-                                                  IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
-                                        </CheckBox>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+            <Grid>
+                <uc:LoadingUC Visibility="{Binding IsLoading, Converter={StaticResource visibilityConverter}}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              MaxHeight="350"
+                              Panel.ZIndex="1">
+                    <!-- ItemsControl to Display items -->
+                    <ItemsControl ItemsSource="{Binding Entries}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="5"
+                                        Padding="5"
+                                        BorderThickness="1"
+                                        BorderBrush="Black"
+                                        CornerRadius="1">
+                                    <StackPanel>
+                                        <StackPanel.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Set as defaut entry" 
+                                                          Command="{Binding SetDefaultEntryCommand, Source={StaticResource mainVm}}"
+                                                          CommandParameter="{Binding Id}"/>
+                                            </ContextMenu>
+                                        </StackPanel.ContextMenu>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition />
+                                                <ColumnDefinition />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock>Username</TextBlock>
+                                                <TextBox IsReadOnly="True" 
+                                                         Text="{Binding Username}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock>Password</TextBlock>
+                                                <PasswordBox Password="************"
+                                                             IsEnabled="False"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid Margin="0 5">
+                                            <Button Background="Black"
+                                                    Foreground="White"
+                                                    Width="100"
+                                                    HorizontalAlignment="Left"
+                                                    Command="{Binding AddOrUpdateEntryCommand, Source={StaticResource mainVm}}"
+                                                    CommandParameter="{Binding Id}">Detail</Button>
+                                            <TextBlock HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="Gray"
+                                                       Visibility="{Binding IsDefault, Converter={StaticResource visibilityConverter}}"
+                                                       Text="- Default -" />
+                                            <Button Background="Salmon"
+                                                    Width="100"
+                                                    HorizontalAlignment="Right"
+                                                    Command="{Binding RemoveEntryCommand, Source={StaticResource mainVm}}"
+                                                    CommandParameter="{Binding Id}">Remove</Button>
+                                            <CheckBox HorizontalAlignment="Right"
+                                                      VerticalAlignment="Center"
+                                                      IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}">
+                                            </CheckBox>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </StackPanel>
     </Grid>
 </Window>

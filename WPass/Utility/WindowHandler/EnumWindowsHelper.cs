@@ -31,18 +31,18 @@ namespace WPass.Utility.WindowHandler
         // Delegate for EnumChildWindows
         private delegate bool EnumChildProc(IntPtr hWnd, IntPtr lParam);
 
-        // PInvoke for EnumChildWindows
-        [LibraryImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static partial bool EnumChildWindows(IntPtr hWnd, EnumChildProc lpEnumFunc, IntPtr lParam);
+        //// PInvoke for EnumChildWindows
+        //[LibraryImport("user32.dll", SetLastError = true)]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //private static partial bool EnumChildWindows(IntPtr hWnd, EnumChildProc lpEnumFunc, IntPtr lParam);
 
         // PInvoke for SendMessage to get text from a control
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, StringBuilder? lParam);
 
-        // Constants for SendMessage
-        private const int WM_GETTEXT = 0x000D;
-        private const int WM_GETTEXTLENGTH = 0x000E;
+        //// Constants for SendMessage
+        // private const int WM_GETTEXT = 0x000D;
+        // private const int WM_GETTEXTLENGTH = 0x000E;
 
         public static List<AutomationElement> GetBrowserWindows()
         {
@@ -51,31 +51,18 @@ namespace WPass.Utility.WindowHandler
             return BrowserElements;
         }
 
-        public static AutomationElement GetFocusBrowserWindow()
+        public static AutomationElement? GetFocusBrowserWindow()
         {
             IntPtr hwnd = GetForegroundWindow();
+         
+            var element = AutomationElement.FromHandle(hwnd);
 
-            var test = "";
-            // Enumerate child windows (controls)
-            EnumChildWindows(hwnd, (childHwnd, lParam) =>
+            if (IsBrowser(element.Current.ClassName, element.Current.Name))
             {
-                // Get the length of the text in the child window
-                int length = SendMessage(childHwnd, WM_GETTEXTLENGTH, IntPtr.Zero, null);
+                return element;
+            }
 
-                if (length > 0)
-                {
-                    StringBuilder sb = new(length + 1);
-                    _ = SendMessage(childHwnd, WM_GETTEXT, sb.Capacity, sb);
-
-                    test += $"Child Window Text: {sb}\n";
-                }
-
-                return true; // Continue enumeration
-            }, IntPtr.Zero);
-
-            Console.WriteLine(test);
-
-            return AutomationElement.FromHandle(hwnd);
+            return null;
         }
 
         private static bool EnumTheWindows(IntPtr hWnd, IntPtr lParam)
@@ -93,19 +80,29 @@ namespace WPass.Utility.WindowHandler
             // Check if the window is visible
             if (IsWindowVisible(hWnd))
             {
-                // Detect popular browsers based on class name and title
-                // note: Chrome, Brave, Arc, UC Browser, Vivaldi, Yandex Browser, Firefox, Tor Browser, Microsoft Edge, Internet Explorer
-                if (className.ToString() == "Chrome_WidgetWin_1" ||  // Chrome, Brave, Arc, UC Browser, etc..
-                    className.ToString() == "MozillaWindowClass" ||  // Firefox, Tor Browser
-                    className.ToString() == "ApplicationFrameWindow" ||  // Edge (UWP)
-                    className.ToString() == "IEFrame" ||  // Internet Explorer
-                    windowText.ToString().Contains("Opera"))  // Opera (specific to title check)
+                if (IsBrowser(className.ToString(), windowText.ToString()))
                 {
                     BrowserElements.Add(AutomationElement.FromHandle(hWnd));
                 }
             }
 
             return true;
+        }
+
+        private static bool IsBrowser(string className, string windowText)
+        {
+            // Detect popular browsers based on class name and title
+            // note: Chrome, Brave, Arc, UC Browser, Vivaldi, Yandex Browser, Firefox, Tor Browser, Microsoft Edge, Internet Explorer
+            if (className.ToString() == "Chrome_WidgetWin_1" ||  // Chrome, Brave, Arc, UC Browser, etc..
+                className.ToString() == "MozillaWindowClass" ||  // Firefox, Tor Browser
+                className.ToString() == "ApplicationFrameWindow" ||  // Edge (UWP)
+                className.ToString() == "IEFrame" ||  // Internet Explorer
+                windowText.ToString().Contains("Opera"))  // Opera (specific to title check)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 

@@ -2,9 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WpfAnimatedGif;
+using XamlAnimatedGif;
 
 namespace WPass
 {
@@ -159,19 +158,19 @@ namespace WPass
         {
             Dispatcher.Invoke(() =>
             {
-                var image = new BitmapImage(new Uri($"pack://application:,,,{path}"));
-                ImageBehavior.SetAnimatedSource(imageControl, image);
-
-                if (ImageBehavior.GetIsAnimationLoaded(imageControl))
+                AnimationBehavior.SetSourceUri(imageControl, new Uri($"pack://application:,,,{path}"));
+                _totalGIf -= 1;
+                if (_totalGIf == 0)
                 {
-                    _totalGIf -= 1;
-                    if (_totalGIf == 0)
-                    {
-                        // loaded
-                        GridLoading.Visibility = Visibility.Collapsed;
-                    }
+                    // loaded
+                    GridLoading.Visibility = Visibility.Collapsed;
                 }
             });
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
         }
     }
 }

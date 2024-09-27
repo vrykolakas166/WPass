@@ -14,38 +14,56 @@ namespace WPass
     public partial class App : Application
     {
         private static Mutex? _mutex;
-        public static bool FirstUsed { get; set; } = false;
-        public static bool PasscodeIsNotCreated { get; set; } = false;
+        private bool _firstUsed;
+        private bool _passcodeIsNotCreated;
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            _mutex?.ReleaseMutex();
+            base.OnExit(e);
+        }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            // Check instance
-            CheckBeforeStart();
-
-            // Error handle logger
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            try
             {
-                Exception ex = (Exception)args.ExceptionObject;
-                var error = $"Unhandled exception: {ex.Message}\n{ex.StackTrace}";
-                Logger.Write(error);
-            };
+                // Check instance
+                CheckBeforeStart();
 
-            // Create default data
-            await SeedData();
+                // Error handle logger
+                AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+                {
+                    Exception ex = (Exception)args.ExceptionObject;
+                    var error = $"Unhandled exception: {ex.Message}\n{ex.StackTrace}";
+                    Logger.Write(error);
+                };
 
-            // Start the application
-            LoginWindow login = new(LoginWindow.Mode.Normal);
-            if (FirstUsed)
-            {
-                new TutorialWindow().ShowDialog();
-                login = new(LoginWindow.Mode.Create);
+                // Create default data
+                await SeedData();
+
+                // Start the application
+                //LoginWindow login = new(LoginWindow.Mode.Normal);
+                //if (_firstUsed)
+                //{
+                //    new TutorialWindow().ShowDialog();
+                //    login = new(LoginWindow.Mode.Create);
+                //}
+
+                //if (_passcodeIsNotCreated)
+                //{
+                //    login = new(LoginWindow.Mode.Create);
+                //}
+                //login.Show();
+
+                // test 
+
+                new MainWindow().Show();
             }
-
-            if (PasscodeIsNotCreated)
+            catch (Exception ex)
             {
-                login = new(LoginWindow.Mode.Create);
+                Logger.Write(ex.Message);
+                MessageBox.Show("Something's wrong. Please contact developer.", "CRITICAL ERROR", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            login.Show();
         }
 
         private static void CheckBeforeStart()
@@ -63,64 +81,66 @@ namespace WPass
             }
         }
 
-        protected override void OnExit(ExitEventArgs e)
+        private async Task SeedData()
         {
-            _mutex?.ReleaseMutex();
-            base.OnExit(e);
-        }
-
-        private static async Task SeedData()
-        {
-            var context = new WPContext();
-            GlobalSession.BrowserElements = []; // new session
-
-            var browserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
-
-            foreach (var item in browserElements)
+            try
             {
-                var check = context.BrowserElements.Find(item.Name);
-                if (check == null)
+                using var context = new WPContext();
+                GlobalSession.BrowserElements.Clear(); // new session
+
+                var browserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];
+
+                foreach (var item in browserElements)
                 {
-                    await context.BrowserElements.AddAsync(item);
+                    var check = context.BrowserElements.Find(item.Name);
+                    if (check == null)
+                    {
+                        await context.BrowserElements.AddAsync(item);
+                    }
                 }
-            }
 
-            if (!context.Settings.Any())
-            {
-                FirstUsed = true;
-                await context.Settings.AddAsync(new Core.Model.Setting()
+                if (!context.Settings.Any())
                 {
-                    Key = Constant.Setting.HOTKEY_FILL_DATA,
-                    Value = "Ctrl + `"
-                });
-                await context.Settings.AddAsync(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.HOTKEY_CLEAR_DATA,
-                    Value = "Ctrl + Q"
-                });
-                await context.Settings.AddAsync(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.HIDE_ON_CLOSE,
-                    Value = "false"
-                });
-                await context.Settings.AddAsync(new Core.Model.Setting()
-                {
-                    Key = Constant.Setting.WINDOW_STARTUP,
-                    Value = "false"
-                });
-            }
-            else
-            {
-                var passSetting = await context.Settings.FirstOrDefaultAsync(s => s.Key.Equals(Constant.Setting.PASSCODE));
-                if (passSetting == null)
-                {
-                    PasscodeIsNotCreated = true;
+                    _firstUsed = true;
+                    await context.Settings.AddAsync(new Core.Model.Setting()
+                    {
+                        Key = Constant.Setting.HOTKEY_FILL_DATA,
+                        Value = "Ctrl + `"
+                    });
+                    await context.Settings.AddAsync(new Core.Model.Setting()
+                    {
+                        Key = Constant.Setting.HOTKEY_CLEAR_DATA,
+                        Value = "Ctrl + Q"
+                    });
+                    await context.Settings.AddAsync(new Core.Model.Setting()
+                    {
+                        Key = Constant.Setting.HIDE_ON_CLOSE,
+                        Value = "false"
+                    });
+                    await context.Settings.AddAsync(new Core.Model.Setting()
+                    {
+                        Key = Constant.Setting.WINDOW_STARTUP,
+                        Value = "false"
+                    });
                 }
+                else
+                {
+                    var passSetting = await context.Settings.FirstOrDefaultAsync(s => s.Key.Equals(Constant.Setting.PASSCODE));
+                    if (passSetting == null)
+                    {
+
+                        _passcodeIsNotCreated = true;
+                    }
+                }
+
+                await context.SaveChangesAsync();
+
+                GlobalSession.BrowserElements = browserElements; // saved session data
             }
-
-            await context.SaveChangesAsync();
-
-            GlobalSession.BrowserElements.AddRange(browserElements); // saved session data 
+            catch (Exception ex)
+            {
+                Logger.Write(ex.Message);
+            }
         }
     }
 }

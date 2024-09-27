@@ -58,7 +58,7 @@ namespace WPass
         {
             if (!ForceToClose)
             {
-                WPContext context = new();
+                using WPContext context = new();
                 var hideOnClose = context.Settings.Find(Constant.Setting.HIDE_ON_CLOSE)?.Value == "true";
                 if (hideOnClose)
                 {

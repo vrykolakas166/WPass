@@ -38,13 +38,10 @@ namespace WPass
             {203, "Passcode is updated !" },
         };
 
-
         private object _lastContent = string.Empty;
         private readonly Mode _mode = Mode.Normal;
         private string? _passcode;
         private bool _hasCreated;
-
-        public bool IsAccessible { get; set; }
 
         public LoginWindow(Mode mode = Mode.Normal)
         {
@@ -113,7 +110,6 @@ namespace WPass
                 // check passcode with saved data
                 if (PasswordBoxCode.Password.Equals(Security.Decrypt(_passcode ?? "")))
                 {
-                    IsAccessible = true;
                     LabelInfo.Foreground = Brushes.Green;
                     LabelInfo.Content = Successes[201];
                     await Task.Delay(500);
@@ -122,7 +118,6 @@ namespace WPass
                 }
                 else
                 {
-                    IsAccessible = false;
                     LabelInfo.Foreground = Brushes.Red;
                     LabelInfo.Content = Errors[105];
                     await Task.Delay(500);
@@ -139,7 +134,6 @@ namespace WPass
                 // check passcode with saved data
                 if (PasswordBoxCode.Password.Equals(PasswordBoxReCode.Password))
                 {
-                    IsAccessible = true;
                     await CreateOrUpdatePasscodeAsync(PasswordBoxCode.Password);
                     LabelInfo.Foreground = Brushes.Green;
                     LabelInfo.Content = Successes[202];
@@ -149,7 +143,6 @@ namespace WPass
                 }
                 else
                 {
-                    IsAccessible = false;
                     LabelInfo.Foreground = Brushes.Red;
                     LabelInfo.Content = Errors[104];
                     await Task.Delay(500);
@@ -169,7 +162,6 @@ namespace WPass
                 {
                     if (PasswordBoxCode.Password.Equals(PasswordBoxReCode.Password))
                     {
-                        IsAccessible = true;
                         await CreateOrUpdatePasscodeAsync(PasswordBoxCode.Password);
                         LabelInfo.Foreground = Brushes.Green;
                         LabelInfo.Content = Successes[203];
@@ -178,7 +170,6 @@ namespace WPass
                     }
                     else
                     {
-                        IsAccessible = false;
                         LabelInfo.Foreground = Brushes.Red;
                         LabelInfo.Content = Errors[104];
                         await Task.Delay(500);
@@ -188,7 +179,6 @@ namespace WPass
                 }
                 else
                 {
-                    IsAccessible = false;
                     LabelInfo.Foreground = Brushes.Red;
                     LabelInfo.Content = Errors[105];
                     await Task.Delay(500);

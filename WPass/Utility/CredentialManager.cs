@@ -2,6 +2,7 @@
 using System.Windows.Automation;
 using WPass.Core.Model;
 using WPass.Utility.OtherHandler;
+using WPass.Utility.SecurityHandler;
 using WPass.Utility.WindowHandler;
 
 namespace WPass.Utility
@@ -15,20 +16,23 @@ namespace WPass.Utility
         /// <param name="isClear">false mean set, true mean clear</param>
         public static void SetData(bool isClear = false)
         {
+            var currentUrl = string.Empty;
+            bool usernameIsSet = false;
+            bool passwordIsSet = false;
+            var windowName = "";
+            windowName += $"1.AutomationElement.FocusedElement.Current.Name: {AutomationElement.FocusedElement.Current.Name}\n\n";
+            var str = "Name, ProgrammaticName \n";
+
+            string? oUsername;
             try
             {
-                var currentUrl = string.Empty;
-
-                bool usernameIsSet = false;
-                bool passwordIsSet = false;
-
                 List<AutomationElement> browserWindows = [];
 
-                // this can change to setting in the future
                 // right now: allow to fill credentials on focus browser
-                if (true)
+                var focusedBrowser = EnumWindowsHelper.GetFocusBrowserWindow();
+                if (focusedBrowser != null)
                 {
-                    browserWindows.Add(EnumWindowsHelper.GetFocusBrowserWindow());
+                    browserWindows.Add(focusedBrowser);
                 }
                 //else
                 //{
@@ -36,12 +40,6 @@ namespace WPass.Utility
                 //    browserWindows = EnumWindowsHelper.GetBrowserWindows();
                 //}
 
-                var windowName = "";
-                windowName += $"1.AutomationElement.FocusedElement.Current.Name: {AutomationElement.FocusedElement.Current.Name}\n\n";
-                var str = "Name, ProgrammaticName \n";
-
-                var oUsername = string.Empty;
-                var oPassword = string.Empty;
                 foreach (AutomationElement window in browserWindows) // only 1 focused element
                 {
                     windowName += "(" + window.Current.ClassName + " - " + window.Current.Name + "); ";
@@ -59,6 +57,7 @@ namespace WPass.Utility
                         elements = window.FindAll(TreeScope.Children, editCondition);
                     }
 
+                    string? oPassword = null;
                     foreach (AutomationElement element in elements)
                     {
                         str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
@@ -146,6 +145,22 @@ namespace WPass.Utility
                         }
                     }
 
+                    // Free password
+                    if (oPassword != null)
+                    {
+                        // Overwrite the password with random data or zeros
+                        unsafe
+                        {
+                            fixed (char* ptr = oPassword)
+                            {
+                                for (int i = 0; i < oPassword.Length; i++)
+                                {
+                                    ptr[i] = '\0'; // Overwrite with null characters
+                                }
+                            }
+                        }
+                    }
+                    oPassword = null; // Nullify the reference
                     // save website info to log in order to investigate
                     Logger.Write(str, "elements.csv");
                     Logger.Write(windowName, "windows.txt");
@@ -277,14 +292,14 @@ namespace WPass.Utility
                                 {
                                     if (IsSameWebsite([.. entry.Websites], currentUrl))
                                     {
-                                        valuePattern.SetValue(entry.Password);
-                                        password = entry.Password;
+                                        valuePattern.SetValue(Security.Decrypt(entry.EncryptedPassword));
+                                        password = Security.Decrypt(entry.EncryptedPassword);
                                         return true;
                                     }
                                 }
 
-                                valuePattern.SetValue(GlobalSession.DefaultEntry?.Password ?? "");
-                                password = GlobalSession.DefaultEntry?.Password ?? "";
+                                valuePattern.SetValue(Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? ""));
+                                password = Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? "");
                                 return true;
                             }
                             return false;
@@ -310,11 +325,11 @@ namespace WPass.Utility
                 {
                     if (IsSameWebsite([.. entry.Websites], currentUrl))
                     {
-                        password = entry.Password;
+                        password = Security.Decrypt(entry.EncryptedPassword);
                     }
                 }
 
-                password = GlobalSession.DefaultEntry?.Password ?? "";
+                password = Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? "");
             }
 
             return false;

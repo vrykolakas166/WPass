@@ -16,7 +16,7 @@ namespace WPass.DTO
 
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Username { get; set; }
-        public string Password { get; set; }
+        public string EncryptedPassword { get; set; }
         public bool IsDefault { get; set; }
         public ObservableCollection<Website> Websites { get; set; }
 
@@ -24,7 +24,7 @@ namespace WPass.DTO
         {
             Id = entry.Id;
             Username = entry.Username;
-            Password = Security.Decrypt(entry.EncryptedPassword);
+            EncryptedPassword = entry.EncryptedPassword;
             Websites = [.. entry.Websites];
             IsDefault = entry.IsDefault;
         }
@@ -33,7 +33,7 @@ namespace WPass.DTO
         {
             Id = entry.Id,
             Username = entry.Username,
-            Password = Security.Decrypt(entry.EncryptedPassword),
+            EncryptedPassword = entry.EncryptedPassword,
             Websites = [.. entry.Websites],
             IsDefault = entry.IsDefault
         };

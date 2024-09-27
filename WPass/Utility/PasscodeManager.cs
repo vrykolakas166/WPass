@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
 using WPass.Constant;
 using WPass.Core;
-using WPass.Utility.OtherHandler;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using WPass.Utility.WindowHandler;
 using static WPass.Utility.SecurityHandler.WindowAuthentication;
 
 namespace WPass.Utility
@@ -43,33 +41,7 @@ namespace WPass.Utility
                         await context.SaveChangesAsync();
 
                         // Restart
-                        // Get the current process
-                        var currentProcess = Process.GetCurrentProcess();
-                        // Start a new instance of the application
-                        if (currentProcess.MainModule != null)
-                        {
-                            MainWindow.ForceToClose = true;
-
-                            // Command to execute after a 2-second delay
-                            string command = $"/C timeout /t 2 && {currentProcess.MainModule.FileName}";
-
-                            // Create a process to run CMD with the command
-                            ProcessStartInfo processStartInfo = new("cmd.exe", command)
-                            {
-                                UseShellExecute = false,
-                                CreateNoWindow = true
-                            };
-
-                            // Start the process
-                            Process.Start(processStartInfo);
-
-                            // Close the current application
-                            Application.Current.Shutdown();
-                        }
-                        else
-                        {
-                            Logger.Write("Failed to restart after reset login passcode.");
-                        }
+                        TriggerHelper.RestartCurrentApplication();
                     }
                 }
                 else

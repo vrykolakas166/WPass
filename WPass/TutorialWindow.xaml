@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPass"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
+        xmlns:uc="clr-namespace:WPass.UC"
         mc:Ignorable="d"
         x:Name="TWindow" 
         Title="Guide" 
@@ -25,19 +26,7 @@
                       Opacity="0.5" />
         </Border.Effect>
         <Grid>
-            <Grid x:Name="GridLoading"
-                  Margin="10"
-                  Panel.ZIndex="99">
-                <Grid.Background>
-                    <SolidColorBrush Color="White"
-                                     Opacity="0.5" />
-                </Grid.Background>
-                <TextBlock Text=". . . L O A D I N G . . ."
-                           FontWeight="SemiBold"
-                           FontSize="20"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-            </Grid>
+            <uc:LoadingUC x:Name="GridLoading"/>
             <Button x:Name="ButtonClose"
                     Panel.ZIndex="3"
                     Click="ButtonClose_Click"
@@ -96,8 +85,7 @@
                                            Foreground="Gray">
                                     or you can SKIP this tutorial by click "SKIP" on the top right of this window
                                 </TextBlock>
-                                <Image x:Name="WelcomeGif" 
-                                       Margin="0 20" />
+                                <Image x:Name="WelcomeGif" Margin="0 20" />
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="view">

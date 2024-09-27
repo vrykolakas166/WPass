@@ -46,7 +46,7 @@ namespace WPass.ViewModels
             _isPasswordEnabled = true;
             _entry = new EntryDto();
 
-            WPContext context = new();
+            using WPContext context = new();
             var existedEntry = context.Entries
                 .Include(e => e.Websites)
                 .FirstOrDefault(e => e.Id.Equals(id));
@@ -100,9 +100,9 @@ namespace WPass.ViewModels
 
         private async Task Save(Window w)
         {
-            WPContext context = new();
+            using WPContext context = new();
             PasswordBox? passwordBox = w.FindName("EntryPasswordBox") as PasswordBox;
-            Entry.Password = passwordBox?.Password ?? string.Empty;
+            Entry.EncryptedPassword = Security.Encrypt(passwordBox?.Password ?? string.Empty);
 
             if (!IsValidEntry())
             {
@@ -120,7 +120,7 @@ namespace WPass.ViewModels
                 var newEntry = new Entry()
                 {
                     Username = Entry.Username,
-                    EncryptedPassword = Security.Encrypt(Entry.Password),
+                    EncryptedPassword = Entry.EncryptedPassword,
                 };
                 await context.Entries.AddAsync(newEntry);
 
@@ -138,7 +138,7 @@ namespace WPass.ViewModels
             {
                 // update
                 entry.Username = Entry.Username;
-                entry.EncryptedPassword = Security.Encrypt(Entry.Password);
+                entry.EncryptedPassword = Entry.EncryptedPassword;
 
                 // check view websites empty => delete all
                 // entry.Websites > Entry.Websites => delete and update

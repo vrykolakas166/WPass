@@ -76,13 +76,11 @@
             </Menu>
             <Grid>
                 <Button Command="{Binding AddOrUpdateEntryCommand}"
+                        Style="{StaticResource SkyRoundedButton}"
                         ToolTip="Add new entry..."
-                        BorderThickness="1"
-                        Padding="2"
                         FontWeight="Bold"
-                        Background="Transparent"
                         HorizontalAlignment="Left"
-                        Margin="5">
+                        Margin="5 10">
                     <StackPanel Orientation="Horizontal">
                         <Image Width="16"
                                Height="16"
@@ -90,11 +88,10 @@
                         <TextBlock Margin="5 0">New</TextBlock>
                     </StackPanel>
                 </Button>
-
             </Grid>
             <Button x:Name="ButtonFilter"
+                    Style="{StaticResource WhiteRoundedButton}"
                     Margin="5"
-                    Background="Transparent"
                     Click="ButtonFilter_Click">
                 <StackPanel Orientation="Horizontal">
                     <Image Source="/Resources/filter.png"
@@ -172,14 +169,13 @@
                         </StackPanel>
                     </TextBlock>
                 <Button x:Name="ButtonManage"
+                        Style="{StaticResource WhiteRoundedButton}"
                         Command="{Binding ManageCommand}"
                         CommandParameter="{Binding ElementName=ButtonManage}"
                         ToolTip="Manage entries"
+                        BorderBrush="Black"
                         BorderThickness="1"
-                        BorderBrush="DarkBlue"
-                        Padding="2"
                         FontWeight="Bold"
-                        Background="Transparent"
                         HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="5 0">Manage</TextBlock>
@@ -201,8 +197,8 @@
                                 <Border Margin="5"
                                         Padding="5"
                                         BorderThickness="1"
-                                        BorderBrush="Black"
-                                        CornerRadius="1">
+                                        BorderBrush="LightSlateGray"
+                                        CornerRadius="10">
                                     <StackPanel>
                                         <StackPanel.ContextMenu>
                                             <ContextMenu>
@@ -217,19 +213,45 @@
                                                 <ColumnDefinition />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock>Username</TextBlock>
-                                                <TextBox IsReadOnly="True" 
-                                                         Text="{Binding Username}"/>
+                                                <GroupBox>
+                                                    <GroupBox.Header>
+                                                        <TextBlock Text="Username" 
+                                                                   FontWeight="SemiBold"
+                                                                   Opacity="0.75"/>
+                                                    </GroupBox.Header>
+                                                    <TextBox Background="Transparent"
+                                                             BorderThickness="0"
+                                                             IsReadOnly="True" 
+                                                             Text="{Binding Username}"/>
+                                                </GroupBox>
+                                                <!--<TextBlock FontWeight="Bold" 
+                                                           Text="Username" 
+                                                           Opacity="0.75"
+                                                           Margin="10 0 0 0"/>
+                                                <TextBox Style="{StaticResource LeftRoundedTextBox}"
+                                                         IsReadOnly="True" 
+                                                         Text="{Binding Username}"/>-->
                                             </StackPanel>
                                             <StackPanel Grid.Column="1">
-                                                <TextBlock>Password</TextBlock>
-                                                <PasswordBox Password="************"
-                                                             IsEnabled="False"/>
+                                                <GroupBox>
+                                                    <GroupBox.Header>
+                                                        <TextBlock Text="Password" 
+                                                                   FontWeight="SemiBold"
+                                                                   Opacity="0.75"/>
+                                                    </GroupBox.Header>
+                                                    <PasswordBox Password="************"
+                                                                 Background="Transparent"
+                                                                 BorderThickness="0"
+                                                                 IsEnabled="False"/>
+                                                </GroupBox>
+                                                <!--<TextBlock>Password</TextBlock>
+                                                <PasswordBox Style="{StaticResource RightRoundedPasswordBox}"
+                                                             Password="************"
+                                                             IsEnabled="False"/>-->
                                             </StackPanel>
                                         </Grid>
                                         <Grid Margin="0 5">
-                                            <Button Background="Black"
-                                                    Foreground="White"
+                                            <Button Style="{StaticResource BlackRoundedButton}"
                                                     Width="100"
                                                     HorizontalAlignment="Left"
                                                     Command="{Binding AddOrUpdateEntryCommand, Source={StaticResource mainVm}}"
@@ -239,7 +261,7 @@
                                                        Foreground="Gray"
                                                        Visibility="{Binding IsDefault, Converter={StaticResource visibilityConverter}}"
                                                        Text="- Default -" />
-                                            <Button Background="Salmon"
+                                            <Button Style="{StaticResource RedRoundedButton}"
                                                     Width="100"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding RemoveEntryCommand, Source={StaticResource mainVm}}"

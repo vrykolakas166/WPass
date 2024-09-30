@@ -87,7 +87,7 @@ namespace WPass.ViewModels
             _hotkeyFill = string.Empty;
             _hotkeyClear = string.Empty;
 
-            LoadData();
+            LoadData().Wait();
 
             UpdatePasscodeCommand = new BaseCommand<Window>(c => true, OpenUpdatePasscode);
             ResetPasscodeCommand = new BaseCommand<Window>(c => true, ResetPasscodeAsync);
@@ -205,7 +205,8 @@ namespace WPass.ViewModels
                 }
 
                 await context.SaveChangesAsync();
-                LoadData();
+
+                await LoadData();
 
                 // Check if hotkeys change
                 // Ask to restart
@@ -235,13 +236,13 @@ namespace WPass.ViewModels
             }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
             _lastSavedData = string.Empty;
 
             using WPContext context = new();
 
-            var browserElements = context.BrowserElements.ToList();
+            var browserElements = await context.BrowserElements.ToListAsync();
             GlobalSession.BrowserElements = browserElements; // saved to session
             var settings = context.Settings
                 .OrderBy(setting => setting.Key)

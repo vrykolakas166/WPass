@@ -21,8 +21,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                        BorderBrush="{TemplateBinding BorderBrush}" 
-                        BorderThickness="{TemplateBinding BorderThickness}">
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}">
                             <ContentPresenter HorizontalAlignment="Center" 
                                       VerticalAlignment="Center"
                                       RecognizesAccessKey="True" />
@@ -41,5 +41,222 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="BaseRoundedButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="10 5"
+                                CornerRadius="10">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                                          ShadowDepth="3"
+                                          Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="BaseRoundedTextBox" TargetType="TextBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="8 4"
+                                CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                                  ShadowDepth="3"
+                                  Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="IBeam"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="LeftRoundedTextBox"
+               TargetType="TextBox"
+               BasedOn="{StaticResource BaseRoundedTextBox}">
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="8 4"
+                                CornerRadius="10 0 0 10">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                                                  ShadowDepth="3"
+                                                  Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="BaseRoundedPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="8 4"
+                        CornerRadius="10">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                  HorizontalAlignment="Left"
+                                  VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                          ShadowDepth="3"
+                          Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="IBeam"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RightRoundedPasswordBox"
+               TargetType="PasswordBox"
+               BasedOn="{StaticResource BaseRoundedPasswordBox}">
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="8 4"
+                                CornerRadius="0 10 10 0">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                                                  ShadowDepth="3"
+                                                  Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="WhiteRoundedButton"
+               TargetType="Button"
+               BasedOn="{StaticResource BaseRoundedButton}">
+
+            <!-- Additional style properties -->
+            <Setter Property="Background" Value="White" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="AliceBlue"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="BlackRoundedButton"
+               TargetType="Button"
+               BasedOn="{StaticResource BaseRoundedButton}">
+
+            <!-- Additional style properties -->
+            <Setter Property="Background" Value="Black" />
+            <Setter Property="Foreground" Value="White" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <SolidColorBrush Color="Black"
+                                             Opacity="0.75"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SkyRoundedButton"
+               TargetType="Button"
+               BasedOn="{StaticResource BaseRoundedButton}">
+
+            <!-- Additional style properties -->
+            <Setter Property="Background" Value="LightSkyBlue" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="DeepSkyBlue"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RedRoundedButton"
+               TargetType="Button"
+               BasedOn="{StaticResource BaseRoundedButton}">
+            
+            <!-- Additional style properties -->
+            <Setter Property="Background" Value="LightSalmon" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="DarkSalmon"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        
     </Application.Resources>
 </Application>

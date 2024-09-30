@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,6 +7,7 @@ using ViewModels.Base;
 using WPass.Core;
 using WPass.Core.Model;
 using WPass.DTO;
+using WPass.Utility.OtherHandler;
 using WPass.Utility.SecurityHandler;
 
 namespace WPass.ViewModels
@@ -101,76 +103,113 @@ namespace WPass.ViewModels
         private async Task Save(Window w)
         {
             using WPContext context = new();
-            PasswordBox? passwordBox = w.FindName("EntryPasswordBox") as PasswordBox;
-            Entry.EncryptedPassword = Security.Encrypt(passwordBox?.Password ?? string.Empty);
+            var trans = await context.Database.BeginTransactionAsync();
 
-            if (!IsValidEntry())
+            try
             {
-                MessageBox.Show("Something's wrong. Try again.", "Error");
-                return;
-            }
+                PasswordBox? passwordBox = w.FindName("EntryPasswordBox") as PasswordBox;
+                Entry.EncryptedPassword = Security.Encrypt(passwordBox?.Password ?? string.Empty);
 
-            var entry = await context.Entries
-                .Include(e => e.Websites)
-                .FirstOrDefaultAsync(e => e.Id.Equals(Entry.Id));
-
-            if (entry == null)
-            {
-                // create
-                var newEntry = new Entry()
+                if (IsValidEntry())
                 {
-                    Username = Entry.Username,
-                    EncryptedPassword = Entry.EncryptedPassword,
-                };
-                await context.Entries.AddAsync(newEntry);
+                    var entry = await context.Entries
+                        .Include(e => e.Websites)
+                        .FirstOrDefaultAsync(e => e.Id.Equals(Entry.Id));
 
-                foreach (var website in Entry.Websites)
-                {
-                    var newWebsite = new Website
+                    // create
+                    if (entry == null)
                     {
-                        EntryId = newEntry.Id,
-                        Url = website.Url
-                    };
-                    await context.Websites.AddAsync(newWebsite);
-                }
-            }
-            else
-            {
-                // update
-                entry.Username = Entry.Username;
-                entry.EncryptedPassword = Entry.EncryptedPassword;
+                        var newEntry = new Entry()
+                        {
+                            Username = Entry.Username,
+                            EncryptedPassword = Entry.EncryptedPassword,
+                        };
 
-                // check view websites empty => delete all
-                // entry.Websites > Entry.Websites => delete and update
-                // entry.Websites <= Entry.Websites => add and update
+                        var exists = context.Entries
+                            .Where(e => e.Username.Equals(newEntry.Username));
+                        var existed = false;
+                        foreach(var item in exists)
+                        {
+                            if(Security.AreTheSame(item.EncryptedPassword, newEntry.EncryptedPassword))
+                            {
+                                existed = true;
+                                break;
+                            }
+                        }
 
-                foreach (var website in entry.Websites)
-                {
-                    context.Websites.Remove(website);
-                }
+                        if (!existed)
+                        {
+                            await context.Entries.AddAsync(newEntry);
 
-                foreach (var website in Entry.Websites)
-                {
-                    var newWebsite = new Website()
+                            foreach (var website in Entry.Websites)
+                            {
+                                var newWebsite = new Website
+                                {
+                                    EntryId = newEntry.Id,
+                                    Url = website.Url
+                                };
+                                await context.Websites.AddAsync(newWebsite);
+                                await context.SaveChangesAsync();
+                                await trans.CommitAsync();
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Sorry, entry was created before.\nIf you want to add more websites to entry or update password on specific websites, please find and update it instead.",
+                                "Warning",
+                                MessageBoxButton.OK, 
+                                MessageBoxImage.Warning);
+                        }
+                    }
+                    // update
+                    else
                     {
-                        EntryId = entry.Id,
-                        Url = website.Url
-                    };
-                    await context.Websites.AddAsync(newWebsite);
+                        if(entry.Websites.Count > 1)
+                        {
+
+                        }
+
+                        entry.Username = Entry.Username;
+                        entry.EncryptedPassword = Entry.EncryptedPassword;
+
+                        // check view websites empty => delete all
+                        // entry.Websites > Entry.Websites => delete and update
+                        // entry.Websites <= Entry.Websites => add and update
+
+                        foreach (var website in entry.Websites)
+                        {
+                            context.Websites.Remove(website);
+                        }
+
+                        foreach (var website in Entry.Websites)
+                        {
+                            var newWebsite = new Website()
+                            {
+                                EntryId = entry.Id,
+                                Url = website.Url
+                            };
+                            await context.Websites.AddAsync(newWebsite);
+                        }
+
+
+                        context.Entries.Update(entry);
+                        await context.SaveChangesAsync();
+                        await trans.CommitAsync();
+                    }
+
+                    // end operation
+                    w?.Close();
                 }
-
-
-                context.Entries.Update(entry);
+                else
+                {
+                    MessageBox.Show("Something's wrong. Try again.", "Error");
+                }
             }
-
-            var rs = await context.SaveChangesAsync();
-            if (rs < 1)
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed.", "Error");
-                return;
+                Logger.Write(ex.Message);
+                trans.Rollback();
             }
-
-            w?.Close();
         }
 
         private bool IsValidEntry()

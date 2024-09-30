@@ -42,22 +42,21 @@ namespace WPass
                 await SeedData();
 
                 // Start the application
-                //LoginWindow login = new(LoginWindow.Mode.Normal);
-                //if (_firstUsed)
-                //{
-                //    new TutorialWindow().ShowDialog();
-                //    login = new(LoginWindow.Mode.Create);
-                //}
+                LoginWindow login = new(LoginWindow.Mode.Normal);
+                if (_firstUsed)
+                {
+                    new TutorialWindow().ShowDialog();
+                    login = new(LoginWindow.Mode.Create);
+                }
 
-                //if (_passcodeIsNotCreated)
-                //{
-                //    login = new(LoginWindow.Mode.Create);
-                //}
-                //login.Show();
+                if (_passcodeIsNotCreated)
+                {
+                    login = new(LoginWindow.Mode.Create);
+                }
+                login.Show();
 
                 // test 
-
-                new MainWindow().Show();
+                //new MainWindow().Show();
             }
             catch (Exception ex)
             {

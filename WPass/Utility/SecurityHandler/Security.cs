@@ -1,6 +1,8 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
+using Windows.ApplicationModel.Chat;
 
 namespace WPass.Utility.SecurityHandler
 {
@@ -55,6 +57,24 @@ namespace WPass.Utility.SecurityHandler
             using CryptoStream cs = new(ms, decryptor, CryptoStreamMode.Read);
             using StreamReader sr = new(cs);
             return sr.ReadToEnd();
+        }
+
+        public static bool AreTheSame(string encrypt1, string encrypt2)
+        {
+            StringBuilder? sb1 = new();
+            StringBuilder? sb2 = new();
+
+            sb1.Append(Decrypt(encrypt1));
+            sb2.Append(Decrypt(encrypt2));
+
+            if (sb1.ToString().Equals(sb2.ToString()))
+            {
+                sb1.Clear();
+                sb2.Clear();
+                return true;
+            }
+
+            return false;
         }
     }
 }

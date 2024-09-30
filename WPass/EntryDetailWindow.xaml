@@ -9,74 +9,110 @@
         ResizeMode="NoResize"
         x:Name="EDWindow" 
         Title="EntryDetailWindow" 
-        Height="300" 
+        Height="440" 
         Width="300">
     <Window.Resources>
     </Window.Resources>
     <Grid>
         <StackPanel Margin="10">
-            <TextBlock>Username</TextBlock>
-            <TextBox Text="{Binding Entry.Username, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <TextBlock>Password</TextBlock>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="40"/>
-                </Grid.ColumnDefinitions>
-                <PasswordBox x:Name="EntryPasswordBox"
-                             Grid.Column="0"
-                             IsEnabled="{Binding IsPasswordEnabled, UpdateSourceTrigger=PropertyChanged}"/>
-                <Button Grid.Column="1"
-                        Background="Transparent"
-                        ToolTip="Clear in order to update"
-                        Command="{Binding ClearPasswordCommand}"
-                        CommandParameter="{Binding ElementName=EntryPasswordBox}">
-                    Clear
-                </Button>
-            </Grid>
+            <GroupBox>
+                <GroupBox.Header>
+                    <TextBlock Text="Username" 
+                               FontWeight="SemiBold"
+                               Opacity="0.75"/>
+                </GroupBox.Header>
+                <TextBox Background="Transparent"
+                         BorderThickness="0"
+                         Margin="0 5"
+                         Text="{Binding Entry.Username, UpdateSourceTrigger=PropertyChanged}" />
+            </GroupBox>
+            <GroupBox>
+                <GroupBox.Header>
+                    <TextBlock Text="Password" 
+                               FontWeight="SemiBold"
+                               Opacity="0.75"/>
+                </GroupBox.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="50"/>
+                    </Grid.ColumnDefinitions>
+                    <PasswordBox x:Name="EntryPasswordBox"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Grid.Column="0"
+                                 VerticalAlignment="Center"
+                                 IsEnabled="{Binding IsPasswordEnabled, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Column="1"
+                            Style="{StaticResource WhiteRoundedButton}"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            ToolTip="Clear in order to update"
+                            Command="{Binding ClearPasswordCommand}"
+                            CommandParameter="{Binding ElementName=EntryPasswordBox}">
+                        Clear
+                    </Button>
+                </Grid>
+            </GroupBox>
             <!--<TextBox Text="{Binding Entry.Password, UpdateSourceTrigger=PropertyChanged}"></TextBox>-->
-            <TextBlock>Website</TextBlock>
-            <ScrollViewer x:Name="WebsiteScrollViewer"
-                          VerticalScrollBarVisibility="Auto"
-                          MaxHeight="80">
-                <ItemsControl ItemsSource="{Binding Entry.Websites}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0 2">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition></ColumnDefinition>
-                                    <ColumnDefinition Width="20"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0"
-                                         Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" />
-                                <Button Grid.Column="1"
-                                        HorizontalContentAlignment="Center"
-                                        Width="20"
-                                        Margin="0"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Command="{Binding DataContext.RemoveWebsiteCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
-                                        CommandParameter="{Binding}">
-                                    <Image Width="16"
-                                           Height="16"
-                                           Source="/Resources/remove.png" />
-                                </Button>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-            <Button ToolTip="Add new website"
-                    BorderThickness="0"
-                    FontWeight="Bold"
-                    Background="Transparent"
-                    HorizontalAlignment="Left"
-                    Command="{Binding AddWebsiteCommand}"
-                    CommandParameter="{Binding ElementName=WebsiteScrollViewer}">
-                <Image Width="16"
-                       Height="16"
-                       Source="/Resources/add.png" />
-            </Button>
+            <GroupBox>
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Websites" 
+                               FontWeight="SemiBold"
+                               Opacity="0.75"/>
+                        <Button ToolTip="Add new website"
+                                BorderThickness="0"
+                                FontWeight="Bold"
+                                Background="Transparent"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Margin="10 4 0 0"
+                                Command="{Binding AddWebsiteCommand}"
+                                CommandParameter="{Binding ElementName=WebsiteScrollViewer}">
+                            <Image Width="16"
+                                   Height="16"
+                                   Source="/Resources/add.png" />
+                        </Button>
+                    </StackPanel>
+                </GroupBox.Header>
+                <ScrollViewer x:Name="WebsiteScrollViewer"
+                              VerticalScrollBarVisibility="Auto"
+                              MaxHeight="150">
+                    <ItemsControl ItemsSource="{Binding Entry.Websites}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0 2">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition Width="20"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                             Style="{StaticResource LeftRoundedTextBox}"
+                                             Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Grid.Column="1"
+                                            HorizontalContentAlignment="Center"
+                                            Width="20"
+                                            Margin="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Command="{Binding DataContext.RemoveWebsiteCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"
+                                            CommandParameter="{Binding}">
+                                        <Image Width="16"
+                                               Height="16"
+                                               Source="/Resources/remove.png" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </GroupBox>
+            <Separator/>
+            <TextBlock>Options</TextBlock>
+            <CheckBox Margin="0 5">Update remind after 3 months</CheckBox>
+            <CheckBox Margin="0 5">Apply to all websites</CheckBox>
+            <Separator />
             <WrapPanel HorizontalAlignment="Right"
                        VerticalAlignment="Bottom">
                 <Button Width="100"

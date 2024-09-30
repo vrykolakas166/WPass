@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Update;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +21,7 @@ namespace WPass.ViewModels
         private static Window? _mainWindow;
         private static List<Tuple<string, string>> _stringSumList = [];
         private static readonly KeyCollector _keyCollector = new();
+        private readonly ContextMenu _manageContextMenu;
 
         private bool _notifyIconVisible;
         public bool NotifyIconVisible
@@ -117,6 +119,7 @@ namespace WPass.ViewModels
             IsLoading = false;
             GlobalSession.EntryDtos = [];
 
+            _manageContextMenu = InitManageContextMenu();
             _filteredSearchValue = string.Empty;
             _selectedSortMode = SortMode.DEFAULT;
             _sortModes =
@@ -152,23 +155,54 @@ namespace WPass.ViewModels
 
         private async Task SetDefaultEntry(string id)
         {
-            using var context = new WPContext();
-            var newEntry = await context.Entries.FindAsync(id);
-            var oldEntry = await context.Entries.FindAsync(GlobalSession.DefaultEntry?.Id);
-            if (newEntry != null)
+            IsLoading = true;
+            await Task.Run(async () =>
             {
-                newEntry.IsDefault = true;
-                context.Entries.Update(newEntry);
-
-                if (oldEntry != null)
+                using var context = new WPContext();
+                var newEntry = await context.Entries.FindAsync(id);
+                var oldEntry = await context.Entries.FindAsync(GlobalSession.DefaultEntry?.Id);
+                if (newEntry != null)
                 {
-                    oldEntry.IsDefault = false;
-                    context.Entries.Update(oldEntry);
-                }
+                    newEntry.IsDefault = true;
+                    context.Entries.Update(newEntry);
 
-                await context.SaveChangesAsync();
-                await LoadData();
-            }
+                    if (oldEntry != null)
+                    {
+                        oldEntry.IsDefault = false;
+                        context.Entries.Update(oldEntry);
+                    }
+
+                    await context.SaveChangesAsync();
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        // todo
+                        // update on UI
+                        var newEUI = Entries.FirstOrDefault(e => e.Id.Equals(newEntry?.Id));
+                        var oldEUI = Entries.FirstOrDefault(e => e.Id.Equals(oldEntry?.Id));
+                        if (newEUI != null)
+                        {
+                            newEUI.IsDefault = true;
+                            Entries.Remove(newEUI);
+                            Entries.Insert(0, newEUI);
+                            GlobalSession.EntryDtos.Remove(newEUI);
+                            GlobalSession.EntryDtos.Insert(0, newEUI);
+                        }
+                        if (oldEUI != null)
+                        {
+                            oldEUI.IsDefault = false;
+                            var index = Entries.IndexOf(oldEUI);
+                            Entries[index] = oldEUI;
+                            var index1 = GlobalSession.EntryDtos.IndexOf(oldEUI);
+                            GlobalSession.EntryDtos[index1] = oldEUI;
+                        }
+
+                        // update on session
+                        GlobalSession.DefaultEntry = newEUI;
+                    });
+                }
+            });
+            IsLoading = false;
         }
 
         private void FilterSearch()
@@ -196,66 +230,10 @@ namespace WPass.ViewModels
 
         private void Manage(Button button)
         {
-            ContextMenu contextMenu = new();
-            MenuItem item1 = new() { Header = "Select all" };
-            MenuItem item2 = new() { Header = "Cancel select" };
-            MenuItem item3 = new() { Header = "Remove selected entries" };
-
-            item1.Click += (s, args) =>
-            {
-                foreach (var entry in Entries)
-                {
-                    entry.IsSelected = true;
-                }
-            };
-
-            item2.Click += (s, args) =>
-            {
-                foreach (var entry in Entries)
-                {
-                    entry.IsSelected = false;
-                }
-            };
-
-            item3.Click += async (s, args) =>
-            {
-                if (Entries.Any(e => e.IsSelected))
-                {
-                    if (MessageBox.Show(_mainWindow, "Are you sure to delete all selected entries?", "Entries", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                    {
-                        using var context = new WPContext();
-                        foreach (var entry in Entries)
-                        {
-                            if (entry.IsSelected)
-                            {
-                                var deletedEntry = await context.Entries.FindAsync(entry.Id);
-                                if (deletedEntry != null)
-                                {
-                                    context.Entries.Remove(deletedEntry);
-                                }
-                            }
-                        }
-                        var rs = await context.SaveChangesAsync();
-                        if (rs > 0)
-                        {
-                            await LoadData();
-                        }
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("Please select at least one entry.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            };
-
-            contextMenu.Items.Add(item1);
-            contextMenu.Items.Add(item2);
-            contextMenu.Items.Add(item3);
-
             // Show the ContextMenu below the button
-            contextMenu.PlacementTarget = button;
-            contextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            contextMenu.IsOpen = true;
+            _manageContextMenu.PlacementTarget = button;
+            _manageContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            _manageContextMenu.IsOpen = true;
         }
 
         private async Task ImportFile()
@@ -539,6 +517,71 @@ namespace WPass.ViewModels
                         FilterSearch();
                     }
                 }
+            }
+        }
+
+        private ContextMenu InitManageContextMenu()
+        {
+            ContextMenu contextMenu = new();
+            MenuItem item1 = new() { Header = "Select all" };
+            MenuItem item2 = new() { Header = "Cancel select" };
+            MenuItem item3 = new() { Header = "Remove selected entries" };
+
+            item1.Click += ManageContextMenuItem1;
+            item2.Click += ManageContextMenuItem2;
+            item3.Click += ManageContextMenuItem3;
+
+            contextMenu.Items.Add(item1);
+            contextMenu.Items.Add(item2);
+            contextMenu.Items.Add(item3);
+
+            return contextMenu;
+        }
+
+        private void ManageContextMenuItem1(object sender, RoutedEventArgs e)
+        {
+            foreach (var entry in Entries)
+            {
+                entry.IsSelected = true;
+            }
+        }
+
+        private void ManageContextMenuItem2(object sender, RoutedEventArgs e)
+        {
+            foreach (var entry in Entries)
+            {
+                entry.IsSelected = false;
+            }
+        }
+
+        private async void ManageContextMenuItem3(object sender, RoutedEventArgs e)
+        {
+            if (Entries.Any(e => e.IsSelected))
+            {
+                if (MessageBox.Show(_mainWindow, "Are you sure to delete all selected entries?", "Entries", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                {
+                    using var context = new WPContext();
+                    foreach (var entry in Entries)
+                    {
+                        if (entry.IsSelected)
+                        {
+                            var deletedEntry = await context.Entries.FindAsync(entry.Id);
+                            if (deletedEntry != null)
+                            {
+                                context.Entries.Remove(deletedEntry);
+                            }
+                        }
+                    }
+                    var rs = await context.SaveChangesAsync();
+                    if (rs > 0)
+                    {
+                        await LoadData();
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select at least one entry.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

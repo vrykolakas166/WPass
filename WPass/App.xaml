@@ -110,7 +110,6 @@
         <Style x:Key="LeftRoundedTextBox"
                TargetType="TextBox"
                BasedOn="{StaticResource BaseRoundedTextBox}">
-
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -132,7 +131,32 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
+        <Style x:Key="RightRoundedTextBox"
+               TargetType="TextBox"
+               BasedOn="{StaticResource BaseRoundedTextBox}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="8 4"
+                                CornerRadius="0 10 10 0">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                          HorizontalAlignment="Left"
+                                          VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10"
+                                                  ShadowDepth="3"
+                                                  Opacity="0.2"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="BaseRoundedPasswordBox" TargetType="PasswordBox">
             <Setter Property="Template">
                 <Setter.Value>
@@ -246,7 +270,7 @@
         <Style x:Key="RedRoundedButton"
                TargetType="Button"
                BasedOn="{StaticResource BaseRoundedButton}">
-            
+
             <!-- Additional style properties -->
             <Setter Property="Background" Value="LightSalmon" />
 
@@ -256,7 +280,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-        
-        
+
+
     </Application.Resources>
 </Application>

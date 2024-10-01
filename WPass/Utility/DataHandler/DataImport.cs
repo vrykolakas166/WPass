@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using WPass.Core.Model;
 using WPass.Utility.OtherHandler;
 using WPass.Utility.SecurityHandler;
@@ -52,12 +53,14 @@ namespace WPass.Utility.DataHandler
                         };
 
                         var existedEntry = entries.FirstOrDefault(r => r.Username == username && Security.Decrypt(r.EncryptedPassword) == password);
-
                         if (existedEntry != null)
                         {
                             // add website
                             newWebsite.EntryId = existedEntry.Id;
-                            websites.Add(newWebsite);
+                            if (!websites.Contains(newWebsite, new WebsiteComparer()))
+                            {
+                                websites.Add(newWebsite);
+                            }
                         }
                         else
                         {
@@ -81,6 +84,19 @@ namespace WPass.Utility.DataHandler
             }
 
             return ([], []);
+        }
+    }
+
+    public class WebsiteComparer : IEqualityComparer<Website>
+    {
+        public bool Equals(Website? x, Website? y)
+        {
+            return x?.EntryId == y?.EntryId && x?.Url == y?.Url;
+        }
+
+        public int GetHashCode([DisallowNull] Website obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }

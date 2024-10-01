@@ -7,6 +7,7 @@ using System.Windows.Input;
 using ViewModels.Base;
 using WPass.Constant;
 using WPass.Core;
+using WPass.Core.Model;
 using WPass.DTO;
 using WPass.Utility;
 using WPass.Utility.DataHandler;
@@ -269,7 +270,7 @@ namespace WPass.ViewModels
                                     }
                                     else
                                     {
-                                        // change new website to belong to existed entry
+                                        // change new website reference to existed entry
                                         var newWebs = websites.Where(w => w.EntryId == entry.Id).ToList();
                                         foreach (var item in newWebs)
                                         {
@@ -284,6 +285,7 @@ namespace WPass.ViewModels
                             }
                         }
                     }
+                    var hashWeb = new HashSet<Website>();
                     if (websites.Count > 0)
                     {
                         foreach (var web in websites)
@@ -292,18 +294,25 @@ namespace WPass.ViewModels
                             {
                                 foreach (var oldWeb in oldWebsites)
                                 {
+                                    if (web.Url == "https://vi.pngtree.com/freepng/international-happy-women-s-day-8-march-happy-women-day_5311451.html")
+                                    {
+                                        Console.WriteLine("stop");
+                                    }
+
                                     if (web.EntryId != oldWeb.EntryId &&
                                         web.Url != oldWeb.Url)
                                     {
-                                        await context.Websites.AddAsync(web);
+                                        hashWeb.Add(web);
                                     }
                                 }
                             }
                             else
                             {
-                                await context.Websites.AddAsync(web);
+                                hashWeb.Add(web);
                             }
                         }
+
+                        await context.Websites.AddRangeAsync(hashWeb);
                     }
 
                     var rs = await context.SaveChangesAsync();

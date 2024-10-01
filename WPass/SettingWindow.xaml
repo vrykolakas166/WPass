@@ -36,14 +36,15 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0"
-                                Background="Gray"
-                                Foreground="White"
+                                Style="{StaticResource GreenRoundedButton}"
+                                Margin="3"
                                 Command="{Binding UpdatePasscodeCommand}"
                                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                             Update
                         </Button>
                         <Button Grid.Column="1"
-                                Background="IndianRed"
+                                Style="{StaticResource RedRoundedButton}"
+                                Margin="3"
                                 Command="{Binding ResetPasscodeCommand}"
                                 CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                             Reset
@@ -68,6 +69,8 @@
                             <TextBlock Grid.Column="0" Grid.Row="0"
                                        VerticalAlignment="Center">Fill data</TextBlock>
                             <Button x:Name="ButtonChangeHotkey_FillData" 
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Margin="5"
                                     Grid.Column="1" Grid.Row="0"
                                     Content="{Binding HotkeyFill, UpdateSourceTrigger=PropertyChanged}"
                                     Click="ButtonChangeHotkey_FillData_Click" />
@@ -81,6 +84,8 @@
                                 </StackPanel>
                             </TextBlock>
                             <Button x:Name="ButtonChangeHotkey_ClearData" 
+                                    Style="{StaticResource BaseRoundedButton}"
+                                    Margin="5"
                                     Grid.Column="1" Grid.Row="1"
                                     Content="{Binding HotkeyClear, UpdateSourceTrigger=PropertyChanged}"
                                     Click="ButtonChangeHotkey_ClearData_Click" />
@@ -131,14 +136,12 @@
                         HorizontalAlignment="Right"
                         Height="25">
                 <Button Margin="5 0"
-                        Padding="5 0"
-                        Background="Gray"
-                        Foreground="White"
+                        Style="{StaticResource BlackRoundedButton}"
                         Command="{Binding ResetCommand}"
                         CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                     Reset default
                 </Button>
-                <Button Padding="5 0"
+                <Button Style="{StaticResource SkyRoundedButton}"
                         Background="LightSkyBlue"
                         Command="{Binding SaveCommand}"
                         CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">

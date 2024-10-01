@@ -17,5 +17,10 @@ namespace WPass
                 EntryPasswordBox.Password = Guid.NewGuid().ToString()[..12];
             }
         }
+
+        private void EDWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            TextBoxUsername.Focus();
+        }
     }
 }

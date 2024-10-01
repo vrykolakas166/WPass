@@ -95,6 +95,17 @@ namespace WPass.ViewModels
             }
         }
 
+        private bool _optionSectionVisible;
+        public bool OptionSectionVisible
+        {
+            get => _optionSectionVisible;
+            set
+            {
+                _optionSectionVisible = value;
+                OnPropertyChanged(nameof(OptionSectionVisible));
+            }
+        }
+
         public ICommand ClearPasswordCommand { get; set; }
 
         public ICommand CancelCommand { get; set; }
@@ -104,6 +115,8 @@ namespace WPass.ViewModels
 
         public EntryDetailVM(string? id)
         {
+            _optionSectionVisible = false;
+            _isAllApplied = true;
             _isPasswordEnabled = true;
             _entry = new EntryDto();
 
@@ -116,6 +129,7 @@ namespace WPass.ViewModels
                 _entry = EntryDto.MapFrom(existedEntry);
                 _websiteSectionTitle = $"Websites ({_entry.Websites.Count})";
                 _isPasswordEnabled = false;
+                _optionSectionVisible = true;
             }
 
             ClearPasswordCommand = new BaseCommand<PasswordBox>(c => true, ClearPassword);
@@ -134,7 +148,7 @@ namespace WPass.ViewModels
 
         private bool CanCancel()
         {
-            if (_lastSaveStep)
+            if (_lastSaveStep && _optionSectionVisible)
             {
                 CancelTitle = "Back";
             }
@@ -164,7 +178,7 @@ namespace WPass.ViewModels
 
         private bool CanSave()
         {
-            if (_isAllApplied || _lastSaveStep)
+            if (_isAllApplied || _lastSaveStep || !_optionSectionVisible)
             {
                 SaveTitle = "Save";
             }
@@ -211,7 +225,7 @@ namespace WPass.ViewModels
                 var (isValid, validationMessage) = IsValidEntry();
 
                 // Step if not update all
-                if (!IsAllApplied)
+                if (!IsAllApplied && !_lastSaveStep && _optionSectionVisible)
                 {
                     if (isValid)
                     {
@@ -273,9 +287,10 @@ namespace WPass.ViewModels
                                         Url = website.Url
                                     };
                                     await context.Websites.AddAsync(newWebsite);
-                                    await context.SaveChangesAsync();
-                                    await trans.CommitAsync();
                                 }
+
+                                await context.SaveChangesAsync();
+                                await trans.CommitAsync();
                             }
                             else // otherwise cancel.
                             {
@@ -285,7 +300,7 @@ namespace WPass.ViewModels
                                     MessageBoxImage.Warning);
                             }
                         }
-                        // update
+                        // update : TODO
                         else
                         {
                             if (entry.Websites.Count > 1)

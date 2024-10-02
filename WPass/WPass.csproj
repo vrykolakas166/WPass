@@ -19,6 +19,7 @@
 		<None Remove="Resources\app.ico" />
 		<None Remove="Resources\close.png" />
 		<None Remove="Resources\filter.png" />
+		<None Remove="Resources\info.png" />
 		<None Remove="Resources\manage.png" />
 		<None Remove="Resources\myapp.ico" />
 		<None Remove="Resources\open.png" />
@@ -34,6 +35,9 @@
 	  <Content Include="Data\init.db">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	  <Resource Include="Resources\info.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Resource>
 	  <Content Include="uninstaller.bmp">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Automation;
-using WPass.Core.Model;
+using WPass.DTO;
 using WPass.Utility.OtherHandler;
 using WPass.Utility.SecurityHandler;
 using WPass.Utility.WindowHandler;
@@ -173,7 +173,7 @@ namespace WPass.Utility
             }
         }
 
-        public static bool IsSameWebsite(List<Website> websites, string currentUrl)
+        public static bool IsSameWebsite(List<WebsiteDto> websites, string currentUrl)
         {
             try
             {
@@ -185,7 +185,7 @@ namespace WPass.Utility
                     rs2 = uri.GetLeftPart(UriPartial.Authority);
                 }
 
-                foreach (Website website in websites)
+                foreach (WebsiteDto website in websites)
                 {
                     rs1 = string.Empty;
                     var savedUrl = website.Url;

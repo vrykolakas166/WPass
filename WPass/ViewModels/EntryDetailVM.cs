@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -129,13 +130,12 @@ namespace WPass.ViewModels
                 _entry = EntryDto.MapFrom(existedEntry);
                 _websiteSectionTitle = $"Websites ({_entry.Websites.Count})";
                 _isPasswordEnabled = false;
-                _optionSectionVisible = true;
             }
 
             ClearPasswordCommand = new BaseCommand<PasswordBox>(c => true, ClearPassword);
 
             CancelCommand = new BaseCommand<Window>(c => CanCancel(), Cancel);
-            RemoveWebsiteCommand = new BaseCommand<Website>(c => true, RemoveWebsite);
+            RemoveWebsiteCommand = new BaseCommand<WebsiteDto>(c => true, RemoveWebsite);
             AddWebsiteCommand = new BaseCommand<ScrollViewer>(c => CanAddWebsite(), AddWebsite);
             SaveCommand = new BaseCommand<Window>(c => CanSave(), Save);
         }
@@ -144,6 +144,10 @@ namespace WPass.ViewModels
         {
             pb?.Clear();
             IsPasswordEnabled = true;
+            if (_entry.Websites.Count > 1)
+            {
+                OptionSectionVisible = true;
+            }
         }
 
         private bool CanCancel()
@@ -197,7 +201,7 @@ namespace WPass.ViewModels
             return !string.IsNullOrEmpty(Entry.Websites[^1].Url);
         }
 
-        private void RemoveWebsite(Website web)
+        private void RemoveWebsite(WebsiteDto web)
         {
             Entry.Websites.Remove(web);
             WebsiteSectionTitle = $"Websites ({GetCountFromWebsiteSection(WebsiteSectionTitle) - 1})";
@@ -205,7 +209,7 @@ namespace WPass.ViewModels
 
         private void AddWebsite(ScrollViewer? viewer)
         {
-            Entry.Websites.Add(new Website
+            Entry.Websites.Add(new WebsiteDto
             {
                 EntryId = Entry.Id,
             });
@@ -243,8 +247,12 @@ namespace WPass.ViewModels
                 else // otherwise
                 {
                     trans = await context.Database.BeginTransactionAsync();
-                    PasswordBox? passwordBox = w.FindName("EntryPasswordBox") as PasswordBox;
-                    Entry.EncryptedPassword = Security.Encrypt(passwordBox?.Password ?? string.Empty);
+
+                    if (IsPasswordEnabled)
+                    {
+                        PasswordBox? passwordBox = w.FindName("EntryPasswordBox") as PasswordBox;
+                        Entry.EncryptedPassword = Security.Encrypt(passwordBox?.Password ?? string.Empty);
+                    }
 
                     if (isValid)
                     {
@@ -303,35 +311,81 @@ namespace WPass.ViewModels
                         // update : TODO
                         else
                         {
-                            if (entry.Websites.Count > 1)
+                            if (IsAllApplied)
                             {
+                                entry.Username = Entry.Username;
+                                entry.EncryptedPassword = Entry.EncryptedPassword;
 
-                            }
+                                // check view websites empty => delete all
+                                // entry.Websites > Entry.Websites => delete and update
+                                // entry.Websites <= Entry.Websites => add and update
 
-                            entry.Username = Entry.Username;
-                            entry.EncryptedPassword = Entry.EncryptedPassword;
-
-                            // check view websites empty => delete all
-                            // entry.Websites > Entry.Websites => delete and update
-                            // entry.Websites <= Entry.Websites => add and update
-
-                            foreach (var website in entry.Websites)
-                            {
-                                context.Websites.Remove(website);
-                            }
-
-                            foreach (var website in Entry.Websites)
-                            {
-                                var newWebsite = new Website()
+                                foreach (var website in entry.Websites)
                                 {
-                                    EntryId = entry.Id,
-                                    Url = website.Url
+                                    context.Websites.Remove(website);
+                                }
+
+                                foreach (var website in Entry.Websites)
+                                {
+                                    var newWebsite = new Website()
+                                    {
+                                        EntryId = entry.Id,
+                                        Url = website.Url
+                                    };
+                                    await context.Websites.AddAsync(newWebsite);
+                                }
+
+                                context.Entries.Update(entry);
+                            }
+                            else
+                            {
+                                if (entry.Username == Entry.Username && Security.Decrypt(entry.EncryptedPassword) == Security.Decrypt(Entry.EncryptedPassword))
+                                {
+                                    MessageBox.Show("Username or password must be changed in order to apply to specific websites.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    trans.Rollback();
+                                    return;
+                                }
+
+                                // update entry when websites are added or removed
+                                var (addeds, deleteds) = GetChangedWebsites(entry);
+                                foreach(var item in addeds)
+                                {
+                                    var newWebsite = new Website()
+                                    {
+                                        EntryId = entry.Id,
+                                        Url = item.Url
+                                    };
+                                    await context.Websites.AddAsync(newWebsite);
+                                }
+                                foreach (var item in deleteds)
+                                {
+                                    context.Websites.Remove(item);
+                                }
+
+                                // update entry with specific websites
+                                var newEntry = new Entry()
+                                {
+                                    Username = Entry.Username,
+                                    EncryptedPassword = Entry.EncryptedPassword,
                                 };
-                                await context.Websites.AddAsync(newWebsite);
+                                await context.Entries.AddAsync(newEntry);
+
+                                // remove checked websites in current entry and create new entry to store checked websites
+                                foreach (var website in entry.Websites)
+                                {
+                                    foreach (var viewWebsite in Entry.Websites)
+                                    {
+                                        // If wesbites in database contains view websites and checked
+                                        // remove from database
+                                        // add removed ones to a list then add to new entry
+                                        if (viewWebsite.IsChecked && website.Url.Equals(viewWebsite.Url) && (website.EntryId?.Equals(viewWebsite.EntryId) ?? false))
+                                        {
+                                            website.EntryId = newEntry.Id;
+                                        }
+                                    }
+                                }
                             }
 
-
-                            context.Entries.Update(entry);
                             await context.SaveChangesAsync();
                             await trans.CommitAsync();
                         }
@@ -399,6 +453,21 @@ namespace WPass.ViewModels
             }
 
             return 0; // Return 0 if no valid number is found
+        }
+
+        private (List<WebsiteDto> addedWebsites, List<Website> deletedWebsites) GetChangedWebsites(Entry currentEntry)
+        {
+            var addedWebsites = Entry.Websites
+                .Where(newWeb => !currentEntry.Websites
+                .Any(w => w.Url.Equals(newWeb.Url) && (w.EntryId?.Equals(newWeb.EntryId) ?? false)))
+                .ToList();
+
+            var deletedWebsites = currentEntry.Websites
+                .Where(oldWeb => !Entry.Websites
+                .Any(w => w.Url.Equals(oldWeb.Url) && (w.EntryId?.Equals(oldWeb.EntryId) ?? false)))
+                .ToList();
+
+            return (addedWebsites, deletedWebsites);
         }
 
         #region ScrollViewer Animation setup

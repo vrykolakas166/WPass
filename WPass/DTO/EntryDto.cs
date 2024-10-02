@@ -3,7 +3,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using WPass.Core.Model;
-using WPass.Utility.SecurityHandler;
 
 namespace WPass.DTO
 {
@@ -18,14 +17,14 @@ namespace WPass.DTO
         public string Username { get; set; }
         public string EncryptedPassword { get; set; }
         public bool IsDefault { get; set; }
-        public ObservableCollection<Website> Websites { get; set; }
+        public ObservableCollection<WebsiteDto> Websites { get; set; }
 
         public void UpdateFrom(Entry entry)
         {
             Id = entry.Id;
             Username = entry.Username;
             EncryptedPassword = entry.EncryptedPassword;
-            Websites = [.. entry.Websites];
+            Websites = [.. entry.Websites.Select(WebsiteDto.MapFrom)];
             IsDefault = entry.IsDefault;
         }
 
@@ -34,7 +33,7 @@ namespace WPass.DTO
             Id = entry.Id,
             Username = entry.Username,
             EncryptedPassword = entry.EncryptedPassword,
-            Websites = [.. entry.Websites],
+            Websites = [.. entry.Websites.Select(WebsiteDto.MapFrom)],
             IsDefault = entry.IsDefault
         };
 

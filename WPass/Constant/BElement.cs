@@ -20,6 +20,7 @@
                                               { ""Name"": ""Email or phone"" },
                                               { ""Name"": ""Email or mobile number"" },
                                               { ""Name"": ""Tên đăng nhập"" },
+                                              { ""Name"": ""Tên truy cập"" },
                                               { ""Name"": ""Tài khoản"" },
                                               { ""Name"": ""Số điện thoại"" },
                                             ]";

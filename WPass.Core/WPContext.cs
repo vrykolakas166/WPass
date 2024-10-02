@@ -31,18 +31,22 @@ namespace WPass.Core
                     var dbPath = Path.Combine(directory, "main.db");
 
 #if !DEBUG
-            // If main.db doesn't exist, copy template.db to ApplicationData folder
-            if (!File.Exists(dbPath))
-            {
-                var templateDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "init.db");
-                SetSecureFilePermissions(templateDbPath);
-                
-                if (File.Exists(templateDbPath))
-                {
-                    File.Copy(templateDbPath, dbPath);
-                    SetSecureFilePermissions(dbPath); // Set permissions after copying
-                }
-            }
+                    // If main.db doesn't exist, copy template.db to ApplicationData folder
+                    if (!File.Exists(dbPath))
+                    {
+                        var templateDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "init.db");
+                        SetSecureFilePermissions(templateDbPath);
+
+                        if (File.Exists(templateDbPath))
+                        {
+                            File.Copy(templateDbPath, dbPath);
+                            SetSecureFilePermissions(dbPath); // Set permissions after copying
+                        }
+                        else
+                        {
+                            throw new Exception("Data lost. Please re-install the application.");
+                        }
+                    }
 #endif
 
                     optionsBuilder.UseSqlite(InitializeSQLiteConnectionString(dbPath));
@@ -53,7 +57,6 @@ namespace WPass.Core
                 }
             }
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

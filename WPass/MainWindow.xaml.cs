@@ -101,7 +101,7 @@ namespace WPass
             else
             {
                 // Expand the StackPanel
-                AnimateFilterPanel(35, 1); // Height to any desired value and Opacity to 1
+                AnimateFilterPanel(40, 1); // Height to any desired value and Opacity to 1
             }
             _isExpanded = !_isExpanded; // Toggle the expanded state
         }

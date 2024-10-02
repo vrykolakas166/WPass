@@ -16,7 +16,6 @@ namespace WPass.DTO
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Username { get; set; }
         public string EncryptedPassword { get; set; }
-        public bool IsDefault { get; set; }
         public ObservableCollection<WebsiteDto> Websites { get; set; }
 
         public void UpdateFrom(Entry entry)
@@ -51,6 +50,21 @@ namespace WPass.DTO
                 }
             }
         }
+
+        private bool _isDefault;
+        public bool IsDefault
+        {
+            get => _isDefault;
+            set
+            {
+                if (_isDefault != value)
+                {
+                    _isDefault = value;
+                    OnPropertyChanged(nameof(IsDefault));
+                }
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {

@@ -16,7 +16,7 @@ namespace WPass.Utility.WindowHandler
                 MainWindow.ForceToClose = true;
 
                 // Command to execute after a 1-second delay
-                string command = $"/C timeout /t 1 && {currentProcess.MainModule.FileName}";
+                string command = $"/C timeout /t 1 && \"{currentProcess.MainModule.FileName}\" && exit";
 
                 // Create a process to run CMD with the command
                 ProcessStartInfo processStartInfo = new("cmd.exe", command)

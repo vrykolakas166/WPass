@@ -20,7 +20,7 @@ namespace WPass.Utility
             bool usernameIsSet = false;
             bool passwordIsSet = false;
             var windowName = "";
-            windowName += $"1.AutomationElement.FocusedElement.Current.Name: {AutomationElement.FocusedElement.Current.Name}\n\n";
+            windowName += $"AutomationElement.FocusedElement.Current.Name: {AutomationElement.FocusedElement.Current.Name}\n\n";
             var str = "Name, ProgrammaticName \n";
 
             string? oUsername;
@@ -57,7 +57,15 @@ namespace WPass.Utility
                         elements = window.FindAll(TreeScope.Children, editCondition);
                     }
 
+                    // ignore address bar
+                    if (_addressBars.Contains(AutomationElement.FocusedElement.Current.Name))
+                    {
+                        return;
+                    };
+
                     string? oPassword = null;
+                    int elementCnt = elements.Count;
+                    bool needTrigger = false;
                     foreach (AutomationElement element in elements)
                     {
                         str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
@@ -71,7 +79,15 @@ namespace WPass.Utility
                                 currentUrl = valuePattern.Current.Value;
                                 if (isEdge)
                                 {
-                                    continue;
+                                    if (elementCnt > 300) // escape if find too many elements in current website
+                                    {
+                                        needTrigger = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
                                 }
                                 else
                                 {
@@ -81,7 +97,7 @@ namespace WPass.Utility
                         }
 
                         windowName += $"\n{window.Current.Name}: " + currentUrl;
-                        // continue; // collect info when debug
+                        // continue; // uncomment for collectinbg info only
                         if (isEdge)
                         {
                             // fill data
@@ -105,10 +121,16 @@ namespace WPass.Utility
                         }
                     }
 
-                    if (!isEdge && !isClear)
+                    if (!usernameIsSet || !passwordIsSet)
                     {
-                        _ = SetUsername(null, currentUrl, out oUsername, isClear);
-                        _ = SetPassword(null, currentUrl, out oPassword, isClear);
+                        needTrigger = true;
+                    }
+
+                    // Using keyboard simulator
+                    if ((!isEdge || needTrigger) && !isClear)
+                    {
+                        _ = SetUsername(null, currentUrl, out oUsername);
+                        _ = SetPassword(null, currentUrl, out oPassword);
                         // if not set
                         // go here
                         // using oUsername and oPassword and using keyboard simulator
@@ -116,7 +138,6 @@ namespace WPass.Utility
                         usernameIsSet = true;
                         passwordIsSet = true;
 
-                        // case Edge but using keyboard simulator
                         var usernameIsSetBySimulator = false;
                         if (!usernameIsSet)
                         {

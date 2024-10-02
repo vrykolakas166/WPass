@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         Name="MWindow"
         Title="WPass" 
-        Height="500" 
+        Height="525" 
         MinHeight="300"
         Width="500"
         MinWidth="300"
@@ -120,28 +120,26 @@
                                 </TextBlock>
                             </StackPanel>
                         </TextBlock>
-                    <TextBox x:Name="TextBoxFilterSearch"
-                             Grid.Column="1"
-                             Margin="5"
-                             Text="{Binding FilteredSearchValue, UpdateSourceTrigger=PropertyChanged}"
-                             VerticalAlignment="Center">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="TextChanged">
-                                <i:InvokeCommandAction Command="{Binding FilterSearchCommand}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </TextBox>
-                    <Button x:Name="ButtonClearSearch" Grid.Column="1"
-                            Margin="5"
-                            Height="18"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Right"
-                            HorizontalContentAlignment="Center"
-                            Padding="4 0"
-                            Background="Transparent"
-                            Click="ButtonClearSearch_Click">
-                        Clear
-                    </Button>
+                    <StackPanel Grid.Column="1"
+                                Margin="5"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                        <TextBox x:Name="TextBoxFilterSearch"
+                                 Width="300"
+                                 Style="{StaticResource LeftRoundedTextBox}"
+                                 Text="{Binding FilteredSearchValue, UpdateSourceTrigger=PropertyChanged}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="TextChanged">
+                                    <i:InvokeCommandAction Command="{Binding FilterSearchCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </TextBox>
+                        <Button x:Name="ButtonClearSearch" 
+                                Style="{StaticResource BaseRightRoundedButton}"
+                                Click="ButtonClearSearch_Click">
+                            Clear
+                        </Button>
+                    </StackPanel>
                 </Grid>
                 <!--<StackPanel Orientation="Horizontal">
                         <TextBlock VerticalAlignment="Center"
@@ -185,6 +183,14 @@
                     </StackPanel>
                 </Button>
             </Grid>
+            <Border BorderBrush="LightGray"
+                    BorderThickness="0 0 0 1"
+                    Opacity="0.4">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="5"
+                                      ShadowDepth="1" />
+                </Border.Effect>
+            </Border>
             <Grid>
                 <uc:LoadingUC Visibility="{Binding IsLoading, Converter={StaticResource visibilityConverter}}"/>
                 <ScrollViewer VerticalScrollBarVisibility="Auto"

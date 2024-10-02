@@ -131,7 +131,6 @@ namespace WPass
             if (ValidateInput())
             {
                 // check passcode with repasscode
-                // check passcode with saved data
                 if (PasswordBoxCode.Password.Equals(PasswordBoxReCode.Password))
                 {
                     await CreateOrUpdatePasscodeAsync(PasswordBoxCode.Password);

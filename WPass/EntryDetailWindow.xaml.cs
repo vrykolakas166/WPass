@@ -25,8 +25,8 @@ namespace WPass
 
         private void ButtonInfo1_Click(object sender, RoutedEventArgs e)
         {
-            var msg = "NOTE: If you want to update only on some specific websites. " +
-                      "Please change username or password. " +
+            var msg = "NOTE: If you want to update only on some specific websites, " +
+                      "please change username or password. " +
                       "Options section will show up and you need to uncheck option \"Apply to all websites\".";
             MessageBox.Show(msg, "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }

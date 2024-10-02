@@ -99,13 +99,11 @@ namespace WPass.ViewModels
         private async Task ResetPasscodeAsync(Window w)
         {
             await PasscodeManager.ResetAsync();
-            w.Close();
         }
 
         private static void OpenUpdatePasscode(Window w)
         {
             new LoginWindow(LoginWindow.Mode.Change).ShowDialog();
-            w.Close();
         }
 
         private void Reset(Window w)

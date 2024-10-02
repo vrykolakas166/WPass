@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -192,10 +191,11 @@ namespace WPass.ViewModels
                         if (oldEUI != null)
                         {
                             oldEUI.IsDefault = false;
-                            var index = Entries.IndexOf(oldEUI);
-                            Entries[index] = oldEUI;
-                            var index1 = GlobalSession.EntryDtos.IndexOf(oldEUI);
-                            GlobalSession.EntryDtos[index1] = oldEUI;
+                            var temp = GlobalSession.EntryDtos.FirstOrDefault(e => e.Id.Equals(oldEUI.Id));
+                            if (temp != null)
+                            {
+                                temp.IsDefault = false;
+                            }
                         }
 
                         // update on session
@@ -253,6 +253,13 @@ namespace WPass.ViewModels
                     var (entries, websites) = await DataImport.ReadCSV(dialog.FileName);
                     using WPContext context = new();
                     var oldEntries = await context.Entries.ToListAsync();
+
+                    if (entries.Count + oldEntries.Count > 500)
+                    {
+                        MessageBox.Show("For best performance, the application only store maximum 500 entries. Please check again");
+                        return;
+                    }
+
                     var oldWebsites = await context.Websites.ToListAsync();
                     if (entries.Count > 0)
                     {

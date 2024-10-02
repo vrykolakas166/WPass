@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -286,6 +285,12 @@ namespace WPass.ViewModels
                             if (!existed)
                             {
                                 await context.Entries.AddAsync(newEntry);
+                                if (context.Entries.Count() > 500)
+                                {
+                                    MessageBox.Show("For best performance, the application only store maximum 500 entries. Please check again");
+                                    trans.Rollback();
+                                    return;
+                                }
 
                                 foreach (var website in Entry.Websites)
                                 {
@@ -308,7 +313,7 @@ namespace WPass.ViewModels
                                     MessageBoxImage.Warning);
                             }
                         }
-                        // update : TODO
+                        // update
                         else
                         {
                             if (IsAllApplied)
@@ -369,6 +374,13 @@ namespace WPass.ViewModels
                                     EncryptedPassword = Entry.EncryptedPassword,
                                 };
                                 await context.Entries.AddAsync(newEntry);
+
+                                if(context.Entries.Count() > 500)
+                                {
+                                    MessageBox.Show("For best performance, the application only store maximum 500 entries. Please check again");
+                                    trans.Rollback();
+                                    return;
+                                }
 
                                 // remove checked websites in current entry and create new entry to store checked websites
                                 foreach (var website in entry.Websites)

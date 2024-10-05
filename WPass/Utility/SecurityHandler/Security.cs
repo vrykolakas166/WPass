@@ -1,8 +1,6 @@
 ﻿using System.IO;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
-using Windows.ApplicationModel.Chat;
 
 namespace WPass.Utility.SecurityHandler
 {

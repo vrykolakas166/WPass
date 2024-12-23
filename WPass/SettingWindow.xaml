@@ -24,7 +24,7 @@
                              BorderThickness="0"
                              MinHeight="40" 
                              MaxHeight="80"
-                             Text="{Binding BrowserElementsString, UpdateSourceTrigger=PropertyChanged}"/>
+                             Text="{Binding BrowserElementsString, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
                 </GroupBox>
                 <GroupBox>
                     <GroupBox.Header>
@@ -142,6 +142,7 @@
                     Reset default
                 </Button>
                 <Button Style="{StaticResource SkyRoundedButton}"
+                        VerticalContentAlignment="Center"
                         Background="LightSkyBlue"
                         Command="{Binding SaveCommand}"
                         CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">

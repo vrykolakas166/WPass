@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Animation;
 using WPass.Core;
 using WPass.Utility.OtherHandler;
@@ -25,11 +26,16 @@ namespace WPass
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             MainVM.Initialize(this);
+            EntryListView.MaxHeight = ActualHeight - 175;
+        }
+
+        private void MWindow_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            EntryListView.MaxHeight = ActualHeight - 175;
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-
             MainVM.Destroy(this);
         }
 

@@ -40,7 +40,7 @@ namespace WPass.Utility
                 //    browserWindows = EnumWindowsHelper.GetBrowserWindows();
                 //}
 
-                foreach (AutomationElement window in browserWindows) // only 1 focused element
+                foreach (AutomationElement window in browserWindows) // only 1 focused browser
                 {
                     windowName += "(" + window.Current.ClassName + " - " + window.Current.Name + "); ";
                     var isEdge = window.Current.Name.Contains("Microsoft​ Edge"); // UI Automation support Edge only
@@ -66,6 +66,8 @@ namespace WPass.Utility
                     string? oPassword = null;
                     int elementCnt = elements.Count;
                     bool needTrigger = false;
+                    bool isUsernameVisible = true;
+                    bool isPasswordVisible = true;
                     foreach (AutomationElement element in elements)
                     {
                         str += $"\"{element.Current.Name}\", \"{element.Current.ControlType.ProgrammaticName}\" \n";
@@ -96,18 +98,18 @@ namespace WPass.Utility
                             }
                         }
 
-                        windowName += $"\n{window.Current.Name}: " + currentUrl;
+                        // windowName += $"\n{window.Current.Name}: " + currentUrl;
                         // continue; // uncomment for collectinbg info only
                         if (isEdge)
                         {
                             // fill data
                             if (!usernameIsSet)
                             {
-                                usernameIsSet = SetUsername(element, currentUrl, out oUsername, isClear);
+                                (usernameIsSet, isUsernameVisible) = SetUsername(element, currentUrl, out oUsername, isClear);
                             }
                             if (!passwordIsSet)
                             {
-                                passwordIsSet = SetPassword(element, currentUrl, out oPassword, isClear);
+                                (passwordIsSet, isPasswordVisible) = SetPassword(element, currentUrl, out oPassword, isClear);
                             }
 
                             if (usernameIsSet && passwordIsSet && !isClear)
@@ -121,9 +123,22 @@ namespace WPass.Utility
                         }
                     }
 
+                    // If username and password both not set, try trigger keyboard simulation
                     if (!usernameIsSet || !passwordIsSet)
                     {
                         needTrigger = true;
+                    }
+
+                    // If username is not set because of the visibility of it's element, abort keyboard simulation
+                    if (!usernameIsSet && !isUsernameVisible)
+                    {
+                        needTrigger = false;
+                    }
+
+                    // If password is not set because of the visibility of it's element, abort keyboard simulation
+                    if (!passwordIsSet && !isPasswordVisible)
+                    {
+                        needTrigger = false;
                     }
 
                     // Using keyboard simulator
@@ -131,37 +146,43 @@ namespace WPass.Utility
                     {
                         _ = SetUsername(null, currentUrl, out oUsername);
                         _ = SetPassword(null, currentUrl, out oPassword);
+
                         // if not set
                         // go here
-                        // using oUsername and oPassword and using keyboard simulator
-                        KeyboardSimulator.SendUsernameAndPassword(oUsername, oPassword);
-                        usernameIsSet = true;
-                        passwordIsSet = true;
-
-                        var usernameIsSetBySimulator = false;
-                        if (!usernameIsSet)
+                        if (!isEdge)
                         {
-                            // log
-                            Logger.Write("Cannot find username element. Using keyboard simulator instead.");
-
-                            // if cannot find username element using keyboard simulator instead
-                            // and current focused element is a edit control (username input specifically)
-                            if (!string.IsNullOrEmpty(oUsername) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit)
-                            {
-                                KeyboardSimulator.ReleaseCtrlKey();
-                                KeyboardSimulator.ReleaseAltKey();
-                                KeyboardSimulator.SendSentence(oUsername);
-                                usernameIsSetBySimulator = true;
-                            }
+                            // using oUsername and oPassword and using keyboard simulator
+                            KeyboardSimulator.SendUsernameAndPassword(oUsername, oPassword);
+                            usernameIsSet = true;
+                            passwordIsSet = true;
                         }
-                        if (!passwordIsSet)
+                        else
                         {
-                            // log
-                            Logger.Write($"Cannot find password element. Using keyboard simulator instead.");
-                            if (!string.IsNullOrEmpty(oPassword) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit && usernameIsSetBySimulator)
+                            var usernameIsSetBySimulator = false;
+                            if (!usernameIsSet)
                             {
-                                KeyboardSimulator.SendTabKey();
-                                KeyboardSimulator.SendSentence(oPassword);
+                                // log
+                                Logger.Write("Cannot find username element. Using keyboard simulator instead.");
+
+                                // if cannot find username element, using keyboard simulator instead
+                                // and current focused element is a edit control (username input specifically)
+                                if (!string.IsNullOrEmpty(oUsername) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit)
+                                {
+                                    KeyboardSimulator.ReleaseCtrlKey();
+                                    KeyboardSimulator.ReleaseAltKey();
+                                    KeyboardSimulator.SendSentence(oUsername);
+                                    usernameIsSetBySimulator = true;
+                                }
+                            }
+                            if (!passwordIsSet)
+                            {
+                                // log
+                                Logger.Write($"Cannot find password element. Using keyboard simulator instead.");
+                                if (!string.IsNullOrEmpty(oPassword) && AutomationElement.FocusedElement.Current.ControlType == ControlType.Edit && usernameIsSetBySimulator)
+                                {
+                                    KeyboardSimulator.SendTabKey();
+                                    KeyboardSimulator.SendSentence(oPassword);
+                                }
                             }
                         }
                     }
@@ -232,9 +253,10 @@ namespace WPass.Utility
             catch { return false; }
         }
 
-        public static bool SetUsername(AutomationElement? element, string currentUrl, out string username, bool isClear = false)
+        public static (bool, bool) SetUsername(AutomationElement? element, string currentUrl, out string username, bool isClear = false)
         {
             username = string.Empty;
+            var usernameElementVisible = true;
             if (element != null)
             {
                 if (GlobalSession.BrowserElements.Any(field => field.Name.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
@@ -253,27 +275,31 @@ namespace WPass.Utility
                                     {
                                         valuePattern.SetValue(entry.Username);
                                         username = entry.Username;
-                                        return true;
+                                        return (true, usernameElementVisible);
                                     }
                                 }
 
                                 valuePattern.SetValue(GlobalSession.DefaultEntry?.Username ?? "");
                                 username = GlobalSession.DefaultEntry?.Username ?? "";
-                                return true;
+                                return (true, usernameElementVisible);
                             }
-                            return false;
+                            return (false, usernameElementVisible);
                         }
                         else
                         {
                             valuePattern.SetValue(string.Empty);
                         }
-                        return true;
+                        return (true, usernameElementVisible);
                     }
                     else
                     {
                         MessageBox.Show("Elements are not supported on this website.");
-                        return false;
+                        return (false, usernameElementVisible);
                     }
+                }
+                else
+                {
+                    usernameElementVisible = false;
                 }
             }
 
@@ -291,16 +317,19 @@ namespace WPass.Utility
                 username = GlobalSession.DefaultEntry?.Username ?? "";
             }
 
-            return false;
+            return (false, usernameElementVisible);
         }
 
-        public static bool SetPassword(AutomationElement? element, string currentUrl, out string password, bool isClear = false)
+        public static (bool, bool) SetPassword(AutomationElement? element, string currentUrl, out string password, bool isClear = false)
         {
             password = string.Empty;
+            var passwordElementVisible = true;
+            var passwordElements = new string[] { "password", "Mật khẩu", "Enter your password", "your password" };
             if (element != null)
             {
-                if ((element.Current.Name.Equals("password", StringComparison.OrdinalIgnoreCase) || element.Current.Name.Equals("Mật khẩu", StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
+                if (passwordElements.Any(pe => pe.Equals(element.Current.Name, StringComparison.OrdinalIgnoreCase)) && element.Current.ControlType.Equals(ControlType.Edit))
                 {
+                    passwordElementVisible = true;
                     // Check if the element supports ValuePattern
                     if (element.TryGetCurrentPattern(ValuePattern.Pattern, out object pattern))
                     {
@@ -315,31 +344,35 @@ namespace WPass.Utility
                                     {
                                         valuePattern.SetValue(Security.Decrypt(entry.EncryptedPassword));
                                         password = Security.Decrypt(entry.EncryptedPassword);
-                                        return true;
+                                        return (true, passwordElementVisible);
                                     }
                                 }
 
                                 valuePattern.SetValue(Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? ""));
                                 password = Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? "");
-                                return true;
+                                return (true, passwordElementVisible);
                             }
-                            return false;
+                            return (false, passwordElementVisible);
                         }
                         else
                         {
                             valuePattern.SetValue(string.Empty);
                         }
-                        return true;
+                        return (true, passwordElementVisible);
                     }
                     else
                     {
                         MessageBox.Show("Elements are not supported on this website.");
-                        return false;
+                        return (false, passwordElementVisible);
                     }
+                }
+                else
+                {
+                    passwordElementVisible = false;
                 }
             }
 
-            // if cannot find element, simulate keyboard
+            // if cannot find element by text, get password for keyboard simulation
             if (GlobalSession.EntryDtos.Count > 0)
             {
                 foreach (var entry in GlobalSession.EntryDtos)
@@ -353,7 +386,7 @@ namespace WPass.Utility
                 password = Security.Decrypt(GlobalSession.DefaultEntry?.EncryptedPassword ?? "");
             }
 
-            return false;
+            return (false, passwordElementVisible);
         }
     }
 }

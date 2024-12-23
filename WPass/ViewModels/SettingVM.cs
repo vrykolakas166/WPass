@@ -161,6 +161,7 @@ namespace WPass.ViewModels
                     .ToListAsync();
 
                 context.BrowserElements.RemoveRange(oldbe);
+                await context.SaveChangesAsync();
 
                 foreach (var item in defaultBrowserElements)
                 {
@@ -178,6 +179,7 @@ namespace WPass.ViewModels
                         await context.BrowserElements.AddAsync(new BrowserElement() { Name = browserElement.Name });
                     }
                 }
+                await context.SaveChangesAsync();
 
                 for (var i = 0; i < settings.Count; i++)
                 {

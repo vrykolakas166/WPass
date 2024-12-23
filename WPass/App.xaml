@@ -52,11 +52,11 @@
                                 Padding="10 5"
                                 CornerRadius="10">
                             <ContentPresenter HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
+                                              VerticalAlignment="Center"/>
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="10"
-                                          ShadowDepth="3"
-                                          Opacity="0.2"/>
+                                <DropShadowEffect BlurRadius="8"
+                                                  ShadowDepth="3"
+                                                  Opacity="0.5"/>
                             </Border.Effect>
                         </Border>
                     </ControlTemplate>

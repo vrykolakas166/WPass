@@ -16,7 +16,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Data\init.db" />
+		<None Remove="db_pwd.dat" />
+		<None Remove="en_key.dat" />
 		<None Remove="Resources\add.png" />
 		<None Remove="Resources\app.ico" />
 		<None Remove="Resources\close.png" />
@@ -34,7 +35,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Data\init.db">
+	  <Content Include="db_pwd.dat">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="en_key.dat">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Resource Include="Resources\info.png">

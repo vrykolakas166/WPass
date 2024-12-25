@@ -1,8 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Versioning;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using WPass.Core.Model;
 
 namespace WPass.Core
@@ -30,25 +28,6 @@ namespace WPass.Core
 
                     var dbPath = Path.Combine(directory, "main.db");
 
-#if !DEBUG
-                    // If main.db doesn't exist, copy template.db to ApplicationData folder
-                    if (!File.Exists(dbPath))
-                    {
-                        var templateDbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "init.db");
-                        SetSecureFilePermissions(templateDbPath);
-
-                        if (File.Exists(templateDbPath))
-                        {
-                            File.Copy(templateDbPath, dbPath);
-                            SetSecureFilePermissions(dbPath); // Set permissions after copying
-                        }
-                        else
-                        {
-                            throw new Exception("Data lost. Please re-install the application.");
-                        }
-                    }
-#endif
-
                     optionsBuilder.UseSqlite(InitializeSQLiteConnectionString(dbPath));
                 }
                 catch (Exception ex)
@@ -74,33 +53,15 @@ namespace WPass.Core
             var connectionString = new SqliteConnectionStringBuilder
             {
                 DataSource = databaseFile,
-                Password = "J!b&>5F;^MZuCn\"ehP{'z/WrBq3sLam-9R:}tA`KkV,~U)YGX?"// PRAGMA key is being sent from EF Core directly after opening the connection
+                // PRAGMA key is being sent from EF Core directly after opening the connection
+
+#if DEBUG
+                Password = Environment.GetEnvironmentVariable("MY_DATABASE_PASSWORD") ?? throw new InvalidOperationException("Database password is not set in the environment variables.")
+#else
+                Password = DpapiHelper.LoadPassword("db_pwd.dat") ?? throw new InvalidOperationException("Database password file is not found.")
+#endif
             };
             return connectionString.ToString();
-        }
-
-        private static void SetSecureFilePermissions(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                var fileInfo = new FileInfo(filePath);
-                var security = fileInfo.GetAccessControl();
-
-                // Remove all users except the owner and the system
-                security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-
-                // Grant access to the current user and system
-                var currentUser = WindowsIdentity.GetCurrent().Name;
-                security.AddAccessRule(new FileSystemAccessRule(currentUser,
-                    FileSystemRights.FullControl, AccessControlType.Allow));
-
-                // Optionally grant access to SYSTEM
-                security.AddAccessRule(new FileSystemAccessRule("SYSTEM",
-                    FileSystemRights.FullControl, AccessControlType.Allow));
-
-                // Apply the permissions to the file
-                fileInfo.SetAccessControl(security);
-            }
         }
     }
 }

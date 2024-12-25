@@ -29,7 +29,7 @@
         <tb:TaskbarIcon x:Name="MyNotifyIcon" 
                         Visibility="{Binding NotifyIconVisible, Converter={StaticResource visibilityConverter}}"
                         IconSource="/Resources/myapp.ico" 
-                        ToolTipText="From Delta with love"
+                        ToolTipText="Double click the icon to open window"
                         DoubleClickCommand="{Binding NotifyIconOpenCommand}">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>

@@ -85,6 +85,7 @@ namespace WPass
             try
             {
                 using var context = new WPContext();
+                context.Database.Migrate();
                 GlobalSession.BrowserElements.Clear(); // new session
 
                 var browserElements = JsonConvert.DeserializeObject<List<BrowserElement>>(BElement.DEFAULT_JSON) ?? [];

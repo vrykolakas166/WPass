@@ -1,13 +1,17 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using WPass.Core;
 
 namespace WPass.Utility.SecurityHandler
 {
     public class Security
     {
-        private static readonly string EncryptionKey = "KK0/S^PixD<w8P|l";
-
+#if DEBUG
+        private static readonly string EncryptionKey = Environment.GetEnvironmentVariable("MY_ENCRYPTION_KEY") ?? throw new InvalidOperationException("Encryption key is not set in the environment variables.");
+#else
+        private static readonly string EncryptionKey = DpapiHelper.LoadPassword("en_key.dat") ?? throw new InvalidOperationException("Encryption key file is not found.");
+#endif
 
         public static string Encrypt(string plainText)
         {

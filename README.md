@@ -24,7 +24,7 @@ This application is designed to securely store user credentials and automaticall
 
 3. **Config the project:**
 
-   - In development mode: Create launchSettings.json in Properties in WPass project. Here is sample:
+   - In development mode: Create launchSettings.json in Properties in WPass project. Here is a sample:
     ```bash
     {
       "profiles": {
@@ -54,7 +54,7 @@ This application is designed to securely store user credentials and automaticall
 
 5. **Run the application in Visual Studio:**
 
-   Once the configuration process is finihsed, you're free to go.
+   Once the configuration process is finished, you're free to go.
 
 ## Usage
 

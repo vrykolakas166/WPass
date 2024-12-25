@@ -22,18 +22,39 @@ This application is designed to securely store user credentials and automaticall
 
    Navigate to the cloned directory and open the solution file (`.sln`) in Visual Studio.
 
-3. **Build the project:**
+3. **Config the project:**
 
-   - Build the project to restore dependencies and compile the application.
-   - Set WPass.Core as startup project
-   - Open Package Manager Console and run
+   - In development mode: Create launchSettings.json in Properties in WPass project. Here is sample:
     ```bash
-    Update-Database
+    {
+      "profiles": {
+        "WPass": {
+          "commandName": "Project",
+          "environmentVariables": {
+            "MY_ENCRYPTION_KEY": "123456",
+            "MY_DATABASE_PASSWORD": "123456789"
+          }
+        }
+      }
+    }
+    ```
+   - If Production mode: Create en_key.dat and db_pwd.dat files using DpapiHelper.cs in WPass.Core project. Here's usage:
+    ```cs
+    DpapiHelper.SavePassword("123456", "en_key.dat");
+    DpapiHelper.SavePassword("123456789", "db_pwd.dat");
+    // There are several way to create these files,
+    // you can directly add above to the start of App.cs and run debug for once,
+    // then go to bin/debug folder and get those files.
+    ```
+   - REMEMBER to copy 2 created dat files to WPass project, then set their properties:
+    ```Properties
+    Build Action: Content
+    Copy to Output Directory: Copy if newer (or Copy always)
     ```
 
-5. **Run the application:**
+5. **Run the application in Visual Studio:**
 
-   Once the build is successful, database is created, you're free to go.
+   Once the configuration process is finihsed, you're free to go.
 
 ## Usage
 

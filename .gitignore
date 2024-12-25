@@ -362,3 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /WPass/Properties/launchSettings.json
+/WPass/db_pwd.dat
+/WPass/en_key.dat

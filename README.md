@@ -42,8 +42,8 @@ This application is designed to securely store user credentials and automaticall
     ```cs
     DpapiHelper.SavePassword("123456", "en_key.dat");
     DpapiHelper.SavePassword("123456789", "db_pwd.dat");
-    // There are several way to create these files,
-    // you can directly add above to the start of App.cs and run debug for once,
+    // There are several ways to create these files,
+    // you can directly add above code to the start of App.cs and run debug for once,
     // then go to bin/debug folder and get those files.
     ```
    - REMEMBER to copy 2 created dat files to WPass project, then set their properties:

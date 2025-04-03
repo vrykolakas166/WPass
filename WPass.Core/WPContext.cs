@@ -13,6 +13,16 @@ namespace WPass.Core
         public DbSet<Website> Websites { get; set; }
         public DbSet<BrowserElement> BrowserElements { get; set; }
 
+        public WPContext()
+        {
+
+        }
+
+        public WPContext(DbContextOptions<WPContext> options) : base(options)
+        {
+
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -50,6 +60,16 @@ namespace WPass.Core
 
         private static string InitializeSQLiteConnectionString(string databaseFile)
         {
+
+#if RELEASE
+
+            if (!File.Exists("en_key.dat"))
+            {
+                DpapiHelper.SavePassword(DpapiHelper.GenerateStrongPassword(32), "en_key.dat");
+                DpapiHelper.SavePassword(DpapiHelper.GenerateStrongPassword(32), "db_pwd.dat");
+            }
+#endif
+
             var connectionString = new SqliteConnectionStringBuilder
             {
                 DataSource = databaseFile,
@@ -58,6 +78,7 @@ namespace WPass.Core
 #if DEBUG
                 Password = Environment.GetEnvironmentVariable("MY_DATABASE_PASSWORD") ?? throw new InvalidOperationException("Database password is not set in the environment variables.")
 #else
+
                 Password = DpapiHelper.LoadPassword("db_pwd.dat") ?? throw new InvalidOperationException("Database password file is not found.")
 #endif
             };

@@ -46,6 +46,7 @@ namespace WPass
                 if (_firstUsed)
                 {
                     new TutorialWindow().ShowDialog();
+
                     login = new(LoginWindow.Mode.Create);
                 }
 

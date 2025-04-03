@@ -1,0 +1,65 @@
+﻿<Window x:Class="WPass.DatCreator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPass.DatCreator"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="MainWindow" Height="250" Width="400">
+    <Window.Resources>
+        <Style x:Key="SimpleButton" TargetType="Button">
+            <Setter Property="Height" Value="24" />
+            <Setter Property="MinWidth" Value="60" />
+            <Setter Property="Padding" Value="5, 0" />
+        </Style>
+    </Window.Resources>
+    <Border Padding="10">
+        <StackPanel>
+            <Label>Your encryption key</Label>
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="EncryptionText" 
+                         Margin="0,5,5,5"/>
+                <Button x:Name="ButtonAutoGen" 
+                        Grid.Column="1" Content="Auto generate"
+                        Style="{StaticResource SimpleButton}"
+                        Click="ButtonAutoGen_Click"/>
+                <Button x:Name="ButtonCopy" 
+                        Grid.Column="2"
+                        Style="{StaticResource SimpleButton}"
+                        Margin="5,0,0,0"
+                        Width="80"
+                        Content="Copy" HorizontalAlignment="Right"
+                        Click="ButtonCopy_Click"/>
+            </Grid>
+            
+            <Button Grid.Column="1"
+                    x:Name="ButtonCreateDatFile" 
+                    Content="Create dat file"
+                    Style="{StaticResource SimpleButton}"
+                    Click="ButtonCreateDatFile_Click"/>
+            <Separator />
+
+            <Label>Check dat file</Label>
+            
+            <Grid Margin="0, 5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Read dat file"
+                        x:Name="ButtonReadDatFile" 
+                        Style="{StaticResource SimpleButton}"
+                        Click="ButtonReadDatFile_Click"/>
+                <TextBox x:Name="DecryptText" Grid.Column="1"
+                         IsReadOnly="True"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</Window>
